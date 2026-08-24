@@ -70,12 +70,18 @@ Write an answers file in the same shape as `examples/sample_answers.yaml`: an or
 risklens serve
 ```
 
-Opens a local form at `http://127.0.0.1:8000` where you can paste an answers YAML, run an assessment, and download the Jira CSV, all in the browser. Same scoring engine and same AI layer as the CLI; nothing is duplicated. Not deployed publicly yet.
+Opens a small product site at `http://127.0.0.1:8000`:
+
+- `/` -- a landing page explaining what RiskLens does, why it matters, and how it's different
+- `/how-it-works` -- a walkthrough of the actual scoring methodology (not a simplified version of it)
+- `/app` -- the live demo: paste an answers YAML, run an assessment, download the Jira CSV
+
+All three pages sit on top of the same scoring engine, loader, and AI narrator the CLI uses. Not deployed publicly yet.
 
 ## Development
 
 ```bash
-pytest      # 26 tests, all mocked where they touch the AI layer -- no network calls, no cost
+pytest      # 28 tests, all mocked where they touch the AI layer -- no network calls, no cost
 ruff check .
 ```
 

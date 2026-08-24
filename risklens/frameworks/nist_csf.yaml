@@ -2,11 +2,11 @@ id: nist_csf
 name: NIST Cybersecurity Framework 2.0
 
 rubric: &rubric
-  0: "Not started — no defined practice"
-  1: "Ad hoc — practiced inconsistently, not documented"
-  2: "Defined — documented policy/process exists"
-  3: "Managed — consistently followed and measured"
-  4: "Optimized — continuously improved, integrated into operations"
+  0: "Not started: no defined practice"
+  1: "Ad hoc: practiced inconsistently, not documented"
+  2: "Defined: documented policy/process exists"
+  3: "Managed: consistently followed and measured"
+  4: "Optimized: continuously improved, integrated into operations"
 
 functions:
   - id: govern

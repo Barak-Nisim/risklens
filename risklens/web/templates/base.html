@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}RiskLens{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="site-nav">
+    <a href="/" class="brand">
+      <svg class="logo-mark" viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
+        <path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="21" cy="20" r="7" fill="none" stroke="currentColor" stroke-width="3"/>
+        <line x1="26" y1="25" x2="32" y2="31" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">RiskLens</span>
+    </a>
+    <nav>
+      <a href="/how-it-works">How it works</a>
+      <a href="/app" class="nav-cta">Try the demo</a>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>RiskLens is a portfolio project by <strong>Barak Nisim</strong>, built to demonstrate AI-assisted security governance tooling.</p>
+    <p>
+      <a href="https://github.com/Barak-Nisim/risklens">Source on GitHub</a>
+      &middot; MIT License
+    </p>
+  </footer>
+</body>
+</html>

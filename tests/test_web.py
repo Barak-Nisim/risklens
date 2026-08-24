@@ -9,8 +9,27 @@ client = TestClient(app)
 SAMPLE_YAML = Path("examples/sample_answers.yaml").read_text(encoding="utf-8")
 
 
-def test_index_shows_form_with_sample_answers():
+def test_landing_page_shows_marketing_content():
     response = client.get("/")
+
+    assert response.status_code == 200
+    assert "RiskLens" in response.text
+    assert "Try the live demo" in response.text
+    assert "How it works" in response.text
+    # the landing page is not the assessment form
+    assert '<textarea id="answers_yaml"' not in response.text
+
+
+def test_how_it_works_page_explains_methodology():
+    response = client.get("/how-it-works")
+
+    assert response.status_code == 200
+    assert "How RiskLens works" in response.text
+    assert "NIST CSF" in response.text
+
+
+def test_app_form_shows_sample_answers():
+    response = client.get("/app")
 
     assert response.status_code == 200
     assert "Acme Financial Services" in response.text

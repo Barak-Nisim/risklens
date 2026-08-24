@@ -3,7 +3,7 @@
 Framework classes (Question/Category/Function/Framework) describe a question
 bank loaded from YAML. Assessment/Answer describe a filled-out questionnaire.
 The Score* classes and Finding are computed by risklens.scoring and are pure
-data — no logic lives on them.
+data; no logic lives on them.
 """
 
 from __future__ import annotations

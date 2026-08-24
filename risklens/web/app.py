@@ -40,10 +40,20 @@ def _ai_available() -> bool:
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request):
+def landing(request: Request):
+    return templates.TemplateResponse(request, "landing.html", {})
+
+
+@app.get("/how-it-works", response_class=HTMLResponse)
+def how_it_works(request: Request):
+    return templates.TemplateResponse(request, "how_it_works.html", {})
+
+
+@app.get("/app", response_class=HTMLResponse)
+def app_form(request: Request):
     return templates.TemplateResponse(
         request,
-        "index.html",
+        "app_form.html",
         {
             "answers_yaml": _sample_yaml(),
             "ai_available": _ai_available(),
@@ -63,7 +73,7 @@ def assess(request: Request, answers_yaml: str = Form(...), use_ai: str | None =
     except Exception as exc:  # noqa: BLE001 -- surfaced to the user, not swallowed
         return templates.TemplateResponse(
             request,
-            "index.html",
+            "app_form.html",
             {
                 "answers_yaml": answers_yaml,
                 "ai_available": _ai_available(),

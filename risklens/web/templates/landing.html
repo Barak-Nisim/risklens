@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}RiskLens: AI-assisted security readiness assessment{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Enterprise Security Readiness</p>
+    <h1>Know your security gaps before an auditor does.</h1>
+    <p class="hero-sub">
+      RiskLens scores your organization against NIST CSF 2.0, ranks the gaps by real business
+      impact, and turns the result into a leadership-ready report and an actionable Jira backlog.
+      No consultants, no six-week engagement.
+    </p>
+    <div class="cta-row">
+      <a href="/app" class="btn btn-primary">Try the live demo</a>
+      <a href="/how-it-works" class="btn btn-secondary">See how it works</a>
+    </div>
+    <p class="hero-note">Free to run. No signup. No data leaves your machine unless you turn on AI narration.</p>
+  </div>
+
+  <div class="hero-mock" aria-hidden="true">
+    <div class="mock-window">
+      <div class="mock-titlebar">
+        <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+      </div>
+      <div class="mock-body">
+        <p class="mock-org">Acme Financial Services</p>
+        <p class="mock-score"><span class="score-badge">2.04 / 4.0</span> Defined</p>
+        <ul class="mock-findings">
+          <li><span class="mock-priority mock-priority-high"></span> Vendors not periodically reassessed</li>
+          <li><span class="mock-priority mock-priority-high"></span> Audit evidence not on demand</li>
+          <li><span class="mock-priority mock-priority-med"></span> No annual IR tabletop exercise</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature-grid">
+  <h2>What it does</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Deterministic scoring</h3>
+      <p>A weighted scoring engine, not a black box. Every score is explainable and can be recomputed by hand from the numbers on the page.</p>
+    </div>
+    <div class="card">
+      <h3>AI-narrated exec summary</h3>
+      <p>Claude turns the scored findings into a leadership-facing summary and remediation plan. It narrates the findings. It never invents or re-scores them.</p>
+    </div>
+    <div class="card">
+      <h3>Framework-aligned</h3>
+      <p>Built on NIST CSF 2.0's six functions: Govern, Identify, Protect, Detect, Respond, Recover. The same language your auditors already use.</p>
+    </div>
+    <div class="card">
+      <h3>Jira-ready backlog</h3>
+      <p>Export the prioritized findings straight into a CSV your team can import into Jira. Findings don't die in a slide deck.</p>
+    </div>
+  </div>
+</section>
+
+<section class="why-matters">
+  <h2>Why it matters</h2>
+  <p>
+    Boards and auditors expect evidence-based answers about security posture, not a spreadsheet
+    someone updates once a year. Manual assessments are slow, inconsistent between reviewers, and
+    hard to defend when someone asks "why is this the priority?" RiskLens turns a filled-out
+    questionnaire into a scored, ranked, and explainable action plan in minutes, so the next
+    conversation with leadership starts with an answer instead of a shrug.
+  </p>
+</section>
+
+<section class="differentiators">
+  <h2>How we're different</h2>
+  <div class="cards cards-3">
+    <div class="card">
+      <p class="diff-line">Spreadsheets give you data.</p>
+      <p class="diff-line diff-strong">RiskLens gives you priority.</p>
+    </div>
+    <div class="card">
+      <p class="diff-line">Generic AI tools guess at a score.</p>
+      <p class="diff-line diff-strong">RiskLens scores deterministically; AI only narrates it.</p>
+    </div>
+    <div class="card">
+      <p class="diff-line">Findings that live in a slide deck.</p>
+      <p class="diff-line diff-strong">Findings that ship straight to your team's Jira backlog.</p>
+    </div>
+  </div>
+</section>
+
+<section class="steps-teaser">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <p><strong>Answer</strong> a structured questionnaire aligned to NIST CSF 2.0.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <p><strong>Score</strong> against a transparent, weighted engine that ranks every gap.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <p><strong>Act</strong> on an AI-narrated summary and a ready-to-import Jira backlog.</p>
+    </div>
+  </div>
+  <a href="/how-it-works" class="link-more">See the full methodology &rarr;</a>
+</section>
+
+<section class="testimonials">
+  <h2>Illustrative feedback</h2>
+  <p class="testimonials-note">RiskLens is a portfolio project without production customers yet. The quotes below illustrate the kind of feedback the product is designed to earn.</p>
+  <div class="cards cards-3">
+    <blockquote class="card">
+      <p>"We used to spend a week building the vendor risk narrative for the board. This got us there in an afternoon."</p>
+      <cite>Security Program Lead, mid-size fintech</cite>
+    </blockquote>
+    <blockquote class="card">
+      <p>"The scoring is the first tool I've used where I can actually explain to an auditor why something is priority one."</p>
+      <cite>IT Director, healthcare services</cite>
+    </blockquote>
+    <blockquote class="card">
+      <p>"Exporting straight to Jira meant the findings actually turned into tickets instead of a forgotten PDF."</p>
+      <cite>GRC Manager, enterprise SaaS</cite>
+    </blockquote>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2>Try it now.</h2>
+  <p>Free, local, and takes about two minutes with the sample data already loaded.</p>
+  <a href="/app" class="btn btn-primary btn-large">Try the live demo</a>
+</section>
+
+{% endblock %}

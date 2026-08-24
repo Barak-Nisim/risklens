@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}How RiskLens works{% endblock %}
+{% block content %}
+
+<section class="page-header">
+  <p class="eyebrow">Methodology</p>
+  <h1>How RiskLens works</h1>
+  <p class="hero-sub">
+    Every step below is real: the same code that renders this page runs the scoring engine and,
+    if you enable it, the AI layer. Nothing here is a marketing simplification of something
+    different happening under the hood.
+  </p>
+</section>
+
+<section class="method-steps">
+
+  <div class="method-step">
+    <span class="method-num">1</span>
+    <div>
+      <h2>Answer, aligned to NIST CSF 2.0</h2>
+      <p>
+        The questionnaire is organized around the framework's six functions: <strong>Govern</strong>
+        (risk strategy, vendor oversight, audit readiness), <strong>Identify</strong> (asset inventory,
+        risk assessment), <strong>Protect</strong> (identity, MFA, access control, data security),
+        <strong>Detect</strong> (monitoring), <strong>Respond</strong> (incident response), and
+        <strong>Recover</strong> (business continuity). Each question is answered on the same 0&ndash;4
+        maturity scale, from "not started" to "optimized," so the whole assessment is directly
+        comparable across every category.
+      </p>
+    </div>
+  </div>
+
+  <div class="method-step">
+    <span class="method-num">2</span>
+    <div>
+      <h2>Deterministic, weighted scoring</h2>
+      <p>
+        Every question, category, and function carries a weight reflecting how much it matters.
+        Scores roll up as a plain weighted average at every level, question to category to
+        function to overall. There is no hidden curve and no machine-learned model deciding the
+        number. A weight-1.3 question on MFA enforcement pulls its category's score twice as hard
+        as a weight-0.6 question, and you can recompute the whole result by hand from the numbers
+        on the report.
+      </p>
+    </div>
+  </div>
+
+  <div class="method-step">
+    <span class="method-num">3</span>
+    <div>
+      <h2>Findings ranked by real business impact</h2>
+      <p>
+        Anything scoring below the maturity threshold becomes a finding. Findings are ranked by
+        <code>weight &times; (4 &minus; score)</code>, so a high-weight, low-maturity gap, like
+        unreassessed vendors, outranks a low-weight gap even if both are technically "below
+        threshold." Priority order isn't a guess; it's the same formula every time.
+      </p>
+    </div>
+  </div>
+
+  <div class="method-step">
+    <span class="method-num">4</span>
+    <div>
+      <h2>AI narrates. It never re-scores.</h2>
+      <p>
+        When AI narration is enabled, Claude receives the already-computed scores and ranked
+        findings as structured data and is explicitly instructed to narrate and prioritize them
+        for a leadership audience, not to recompute or second-guess them. If you disagree with a
+        finding's priority, the fix is in the scoring math above, not in the AI layer. This split
+        is deliberate: the deterministic core works, and is fully tested, with zero dependency on
+        any AI service.
+      </p>
+    </div>
+  </div>
+
+  <div class="method-step">
+    <span class="method-num">5</span>
+    <div>
+      <h2>Ships to where the work happens</h2>
+      <p>
+        The prioritized findings export as a CSV with the columns Jira's own importer expects, so
+        the backlog goes straight into your team's actual board instead of sitting in a report
+        nobody revisits.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<section class="method-detail-link">
+  <p>
+    Want the full math, including the exact tier boundaries? It's documented in the repo:
+    <a href="https://github.com/Barak-Nisim/risklens/blob/main/docs/scoring_methodology.md">scoring methodology</a>
+    and <a href="https://github.com/Barak-Nisim/risklens/blob/main/docs/architecture.md">architecture</a>.
+  </p>
+</section>
+
+<section class="final-cta">
+  <h2>See it score a real assessment.</h2>
+  <a href="/app" class="btn btn-primary btn-large">Try the live demo</a>
+</section>
+
+{% endblock %}

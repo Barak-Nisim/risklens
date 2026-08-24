@@ -17,7 +17,7 @@ def test_load_framework_parses_nist_csf():
     sso_question = framework.question_by_id("pr-01")
     assert sso_question is not None
     assert "SSO" in sso_question.text or "single sign-on" in sso_question.text.lower()
-    assert sso_question.rubric[4] == "Optimized — continuously improved, integrated into operations"
+    assert sso_question.rubric[4] == "Optimized: continuously improved, integrated into operations"
 
 
 def test_load_assessment_parses_answers_with_notes():

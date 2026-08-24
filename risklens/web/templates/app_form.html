@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}RiskLens: Live demo{% endblock %}
+{% block content %}
+<div class="container">
+  <p class="demo-banner">This is the live demo. Try the pre-filled sample, or paste your own assessment. <a href="/">&larr; Back to overview</a></p>
+
+  <h1>Run an assessment</h1>
+  <p class="subtitle">Scored against NIST CSF 2.0, in your browser, on your machine.</p>
+
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="/assess">
+    <label for="answers_yaml">Answers YAML (NIST CSF framework)</label>
+    <textarea id="answers_yaml" name="answers_yaml" rows="20" spellcheck="false">{{ answers_yaml }}</textarea>
+    <p class="field-caption">Each question gets a 0&ndash;4 maturity score plus optional notes. The questions themselves live in <code>risklens/frameworks/nist_csf.yaml</code>.</p>
+
+    <div class="controls">
+      <label class="checkbox">
+        <input type="checkbox" name="use_ai" value="1" {% if not ai_available %}disabled{% endif %}>
+        Include AI narrative
+        {% if not ai_available %}
+          <span class="hint">(set ANTHROPIC_API_KEY to enable)</span>
+        {% endif %}
+      </label>
+      <button type="submit">Run assessment</button>
+    </div>
+    <p class="field-caption">Scores your answers against NIST CSF 2.0, ranks the gaps, and renders the report below. With AI narration on, it also writes an executive summary and remediation plan.</p>
+  </form>
+</div>
+{% endblock %}
