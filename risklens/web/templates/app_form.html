@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}RiskLens: Live demo{% endblock %}
 {% block content %}
-<div class="container">
-  <p class="demo-banner">This is the live demo. Try the pre-filled sample, or paste your own assessment. <a href="/">&larr; Back to overview</a></p>
+<div class="container app-form-page">
+  <p class="demo-banner">This is the live demo. Sample answers are pre-filled below. Edit anything and run it, or use it as-is. <a href="/">&larr; Back to overview</a></p>
 
   <h1>Run an assessment</h1>
   <p class="subtitle">Scored against NIST CSF 2.0, in your browser, on your machine.</p>
@@ -12,9 +12,59 @@
   {% endif %}
 
   <form method="post" action="/assess">
-    <label for="answers_yaml">Answers YAML (NIST CSF framework)</label>
-    <textarea id="answers_yaml" name="answers_yaml" rows="20" spellcheck="false">{{ answers_yaml }}</textarea>
-    <p class="field-caption">Each question gets a 0&ndash;4 maturity score plus optional notes. The questions themselves live in <code>risklens/frameworks/nist_csf.yaml</code>.</p>
+    <div class="org-fields">
+      <div>
+        <label for="org_name">Organization</label>
+        <input type="text" id="org_name" name="org_name" value="{{ org_name }}">
+      </div>
+      <div>
+        <label for="date">Assessment date</label>
+        <input type="date" id="date" name="date" value="{{ date }}">
+      </div>
+    </div>
+
+    <div class="legend-key">
+      <strong>Maturity scale</strong>
+      <div class="legend-pills">
+        {% for level, desc in legend.items() %}
+        <span class="legend-pill"><strong>{{ level }}</strong> {{ desc.split(':')[0] }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% for function in framework.functions %}
+    <details class="function-section" {% if loop.first %}open{% endif %}>
+      <summary>{{ function.name }}</summary>
+      {% for category in function.categories %}
+      <h4 class="category-heading">{{ category.name }}</h4>
+      {% for question in category.questions %}
+      {% set current = prefill_answers.get(question.id) %}
+      <fieldset class="question">
+        <legend>{{ question.text }}</legend>
+        <div class="pill-row">
+          {% for level in range(5) %}
+          <input
+            type="radio"
+            id="q_{{ question.id }}_{{ level }}"
+            name="q_{{ question.id }}"
+            value="{{ level }}"
+            {% if current and current.score == level %}checked{% endif %}
+          >
+          <label for="q_{{ question.id }}_{{ level }}" title="{{ legend[level] }}">{{ level }}</label>
+          {% endfor %}
+        </div>
+        <input
+          type="text"
+          name="notes_{{ question.id }}"
+          class="notes-input"
+          placeholder="Optional note"
+          value="{{ current.notes if current and current.notes else '' }}"
+        >
+      </fieldset>
+      {% endfor %}
+      {% endfor %}
+    </details>
+    {% endfor %}
 
     <div class="controls">
       <label class="checkbox">

@@ -16,7 +16,8 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from risklens.loader import load_framework, parse_assessment
+from risklens.loader import dump_assessment, load_assessment, load_framework, parse_assessment
+from risklens.models import Answer, Assessment
 from risklens.report.jira_csv import FIELDNAMES as JIRA_FIELDNAMES
 from risklens.report.jira_csv import build_rows as build_jira_rows
 from risklens.scoring import DEFAULT_FINDING_THRESHOLD, score_assessment, tier_for_score
@@ -29,10 +30,15 @@ templates = Jinja2Templates(directory=str(WEB_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(WEB_DIR / "static")), name="static")
 
 
-def _sample_yaml() -> str:
+def _sample_prefill() -> dict:
     if SAMPLE_ANSWERS_PATH.exists():
-        return SAMPLE_ANSWERS_PATH.read_text(encoding="utf-8")
-    return "org_name: Your Organization\ndate: \"2026-01-01\"\nframework: nist_csf\nanswers: {}\n"
+        sample = load_assessment(SAMPLE_ANSWERS_PATH)
+        return {
+            "org_name": sample.org_name,
+            "date": sample.date,
+            "answers": sample.answers,
+        }
+    return {"org_name": "", "date": "", "answers": {}}
 
 
 def _ai_available() -> bool:
@@ -51,11 +57,21 @@ def how_it_works(request: Request):
 
 @app.get("/app", response_class=HTMLResponse)
 def app_form(request: Request):
+    framework = load_framework("nist_csf")
+    prefill = _sample_prefill()
+    # rubric is identical across every question (shared via a YAML anchor in
+    # nist_csf.yaml), so any one question's rubric works as the legend
+    legend = framework.functions[0].categories[0].questions[0].rubric
+
     return templates.TemplateResponse(
         request,
         "app_form.html",
         {
-            "answers_yaml": _sample_yaml(),
+            "framework": framework,
+            "legend": legend,
+            "org_name": prefill["org_name"],
+            "date": prefill["date"],
+            "prefill_answers": prefill["answers"],
             "ai_available": _ai_available(),
             "error": None,
         },
@@ -63,26 +79,29 @@ def app_form(request: Request):
 
 
 @app.post("/assess", response_class=HTMLResponse)
-def assess(request: Request, answers_yaml: str = Form(...), use_ai: str | None = Form(None)):
-    try:
-        assessment = parse_assessment(answers_yaml)
-        framework = load_framework(assessment.framework_id)
-        result = score_assessment(
-            framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD
-        )
-    except Exception as exc:  # noqa: BLE001 -- surfaced to the user, not swallowed
-        return templates.TemplateResponse(
-            request,
-            "app_form.html",
-            {
-                "answers_yaml": answers_yaml,
-                "ai_available": _ai_available(),
-                "error": f"Could not parse or score this assessment: {exc}",
-            },
-        )
+async def assess(request: Request):
+    form = await request.form()
+    framework = load_framework("nist_csf")
+
+    answers = {}
+    for question in framework.all_questions():
+        raw_score = form.get(f"q_{question.id}")
+        if raw_score in (None, ""):
+            continue
+        notes = form.get(f"notes_{question.id}") or None
+        answers[question.id] = Answer(question_id=question.id, score=int(raw_score), notes=notes)
+
+    assessment = Assessment(
+        org_name=str(form.get("org_name") or "Untitled Organization"),
+        date=str(form.get("date") or ""),
+        framework_id="nist_csf",
+        answers=answers,
+    )
+    result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+    answers_yaml = dump_assessment(assessment)
 
     ai_narrative = None
-    if use_ai and _ai_available():
+    if form.get("use_ai") and _ai_available():
         from risklens.ai.narrator import generate_narrative
 
         ai_narrative = generate_narrative(result)

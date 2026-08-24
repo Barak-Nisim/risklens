@@ -79,3 +79,21 @@ def parse_assessment(yaml_text: str) -> Assessment:
         framework_id=raw.get("framework", "nist_csf"),
         answers=answers,
     )
+
+
+def dump_assessment(assessment: Assessment) -> str:
+    """Serializes an Assessment back to the same YAML shape parse_assessment reads."""
+    answers_raw = {}
+    for question_id, answer in assessment.answers.items():
+        if answer.notes:
+            answers_raw[question_id] = {"score": answer.score, "notes": answer.notes}
+        else:
+            answers_raw[question_id] = answer.score
+
+    raw = {
+        "org_name": assessment.org_name,
+        "date": assessment.date,
+        "framework": assessment.framework_id,
+        "answers": answers_raw,
+    }
+    return yaml.safe_dump(raw, sort_keys=False, allow_unicode=True)

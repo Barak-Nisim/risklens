@@ -74,14 +74,14 @@ Opens a small product site at `http://127.0.0.1:8000`:
 
 - `/` -- a landing page explaining what RiskLens does, why it matters, and how it's different
 - `/how-it-works` -- a walkthrough of the actual scoring methodology (not a simplified version of it)
-- `/app` -- the live demo: paste an answers YAML, run an assessment, download the Jira CSV
+- `/app` -- the live demo: an actual questionnaire (grouped by NIST CSF function, pre-filled with the sample data), not a YAML textarea. Submitting it scores the answers, renders the report, and shows a collapsed "View as YAML" section for anyone who wants to see the underlying data
 
 All three pages sit on top of the same scoring engine, loader, and AI narrator the CLI uses. Not deployed publicly yet.
 
 ## Development
 
 ```bash
-pytest      # 28 tests, all mocked where they touch the AI layer -- no network calls, no cost
+pytest      # 31 tests, all mocked where they touch the AI layer -- no network calls, no cost
 ruff check .
 ```
 
