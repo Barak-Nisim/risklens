@@ -64,16 +64,24 @@ Produces a CSV with Summary / Issue Type / Priority / Description / Labels colum
 
 Write an answers file in the same shape as `examples/sample_answers.yaml`: an org name, a date, and a score (0-4) plus optional notes for each question in `risklens/frameworks/nist_csf.yaml`.
 
+## Web UI
+
+```bash
+risklens serve
+```
+
+Opens a local form at `http://127.0.0.1:8000` where you can paste an answers YAML, run an assessment, and download the Jira CSV, all in the browser. Same scoring engine and same AI layer as the CLI; nothing is duplicated. Not deployed publicly yet.
+
 ## Development
 
 ```bash
-pytest      # 21 tests, all mocked where they touch the AI layer -- no network calls, no cost
+pytest      # 26 tests, all mocked where they touch the AI layer -- no network calls, no cost
 ruff check .
 ```
 
 ## Status
 
-Core scoring engine, CLI, deterministic and AI-narrated reports, and Jira export are working end to end. See [open issues](https://github.com/Barak-Nisim/risklens/issues) for the rest of the roadmap, including a planned web UI and live demo.
+Core scoring engine, CLI, deterministic and AI-narrated reports, Jira export, and a local web UI are all working end to end. A public live deploy is the remaining item on the roadmap. See [open issues](https://github.com/Barak-Nisim/risklens/issues).
 
 ## License
 

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RiskLens Report: {{ result.assessment.org_name }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <p><a href="/">&larr; Back</a></p>
+    <h1>RiskLens Security Readiness Report</h1>
+    <h2>{{ result.assessment.org_name }}</h2>
+
+    <dl class="meta">
+      <dt>Date</dt><dd>{{ result.assessment.date or "n/a" }}</dd>
+      <dt>Framework</dt><dd>{{ result.framework.name }}</dd>
+      <dt>Overall score</dt><dd>{{ "%.2f"|format(result.overall_score) }} / 4.0 ({{ result.tier }})</dd>
+    </dl>
+
+    <h3>Function scores</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Score</th><th>Tier</th></tr></thead>
+      <tbody>
+        {% for fs in result.function_scores %}
+        <tr>
+          <td>{{ fs.function.name }}</td>
+          <td>{{ "%.2f"|format(fs.score) }}</td>
+          <td>{{ tier_for_score(fs.score) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3>Findings (prioritized)</h3>
+    {% if result.findings %}
+    <table>
+      <thead><tr><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
+      <tbody>
+        {% for f in result.findings %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ f.question.text }}</td>
+          <td>{{ f.function.name }} / {{ f.category.name }}</td>
+          <td>{{ "%d"|format(f.score) }}/4</td>
+          <td>{{ "%.1f"|format(f.question.weight) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No findings below the configured threshold.</p>
+    {% endif %}
+
+    {% if ai_narrative %}
+    <h3>Executive summary</h3>
+    <p>{{ ai_narrative.executive_summary }}</p>
+
+    <h3>Remediation plan</h3>
+    <ol>
+      {% for item in ai_narrative.remediation_plan %}
+      <li>
+        <strong>{{ item.title }}</strong>: {{ item.rationale }}
+        {% if item.next_step %}<div class="next-step">Next step: {{ item.next_step }}</div>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+
+    {% if ai_narrative.risk_register %}
+    <h3>Risk register</h3>
+    <table>
+      <thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Suggested owner</th></tr></thead>
+      <tbody>
+        {% for row in ai_narrative.risk_register %}
+        <tr>
+          <td>{{ row.risk }}</td>
+          <td>{{ row.likelihood }}</td>
+          <td>{{ row.impact }}</td>
+          <td>{{ row.owner }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% endif %}
+
+    <form method="post" action="/jira-export" class="jira-export">
+      <textarea name="answers_yaml" class="hidden-field">{{ answers_yaml }}</textarea>
+      <button type="submit">Download Jira CSV</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -56,7 +56,11 @@ def load_framework(name_or_path: str) -> Framework:
 
 
 def load_assessment(path: str | Path) -> Assessment:
-    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    return parse_assessment(Path(path).read_text(encoding="utf-8"))
+
+
+def parse_assessment(yaml_text: str) -> Assessment:
+    raw = yaml.safe_load(yaml_text)
 
     answers = {}
     for question_id, entry in raw.get("answers", {}).items():

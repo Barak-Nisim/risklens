@@ -1,0 +1,99 @@
+:root {
+  color-scheme: light dark;
+  --border: #d0d5dd;
+  --muted: #667085;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+h1 { margin-bottom: 0.25rem; }
+.subtitle { color: var(--muted); margin-top: 0; }
+
+.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+label { display: block; font-weight: 600; margin-bottom: 0.4rem; }
+
+textarea {
+  width: 100%;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.hidden-field { display: none; }
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.checkbox { display: flex; align-items: center; gap: 0.4rem; font-weight: normal; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+
+button {
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+button:hover { background: #1e40af; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+th { color: var(--muted); font-weight: 600; }
+
+dl.meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 1rem 0 1.5rem;
+}
+dl.meta dt { color: var(--muted); }
+dl.meta dd { margin: 0; }
+
+.next-step { color: var(--muted); font-size: 0.9rem; margin-top: 0.15rem; }
+
+form.jira-export { margin-top: 1.5rem; }
+
+@media (prefers-color-scheme: dark) {
+  :root { --border: #30374a; }
+  body { background: #0b0f19; color: #e5e7eb; }
+  .error { background: #2a1414; color: #fca5a5; border-color: #5c2323; }
+}

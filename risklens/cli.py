@@ -45,6 +45,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Write the report to a file instead of stdout",
     )
 
+    serve = subparsers.add_parser("serve", help="Run the RiskLens web UI locally")
+    serve.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1)")
+    serve.add_argument("--port", type=int, default=8000, help="Bind port (default: 8000)")
+    serve.add_argument("--reload", action="store_true", help="Auto-reload on code changes")
+
     return parser
 
 
@@ -76,12 +81,21 @@ def _run_assess(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_serve(args: argparse.Namespace) -> int:
+    import uvicorn
+
+    uvicorn.run("risklens.web.app:app", host=args.host, port=args.port, reload=args.reload)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
 
     if args.command == "assess":
         return _run_assess(args)
+    if args.command == "serve":
+        return _run_serve(args)
 
     parser.print_help()
     return 1
