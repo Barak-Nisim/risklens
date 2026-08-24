@@ -1,0 +1,36 @@
+# Example filled-out assessment for a fictional mid-size organization.
+# Run: risklens assess examples/sample_answers.yaml --no-ai
+
+org_name: Acme Financial Services
+date: "2026-08-24"
+framework: nist_csf
+
+answers:
+  gov-01: { score: 3, notes: "Risk strategy documented, reviewed annually by leadership" }
+  gov-02: { score: 2, notes: "Risk appetite defined but not broadly communicated" }
+  gov-03: { score: 3, notes: "New vendors go through a formal security review before onboarding" }
+  gov-04: { score: 1, notes: "Existing vendors are almost never reassessed after onboarding" }
+  gov-05: { score: 2, notes: "Contract review happens inconsistently" }
+  gov-06: { score: 2, notes: "Compliance obligation list exists but is out of date" }
+  gov-07: { score: 1, notes: "Evidence collection for audits is manual and slow" }
+
+  id-01: { score: 3, notes: "Asset inventory maintained in CMDB" }
+  id-02: { score: 2, notes: "Data classification applied inconsistently outside core systems" }
+  id-03: { score: 2, notes: "Risk assessment happens for large projects, skipped for smaller ones" }
+
+  pr-01: { score: 4, notes: "SSO enforced across all core business applications" }
+  pr-02: { score: 4, notes: "MFA required for all privileged and remote access" }
+  pr-03: { score: 3, notes: "Joiner-mover-leaver process documented, mostly followed" }
+  pr-04: { score: 2, notes: "Access recertification happens roughly annually, not consistently" }
+  pr-05: { score: 3, notes: "Encryption at rest and in transit standard for sensitive data" }
+  pr-06: { score: 2, notes: "Backup restores tested opportunistically, not on a schedule" }
+
+  dt-01: { score: 2, notes: "Centralized logging covers production, not all environments" }
+  dt-02: { score: 1, notes: "No defined SLA for alert triage" }
+
+  rs-01: { score: 2, notes: "IR plan exists, last updated over a year ago" }
+  rs-02: { score: 1, notes: "No tabletop exercise run in the past two years" }
+  rs-03: { score: 2, notes: "Internal comms path defined, customer/regulator path unclear" }
+
+  rc-01: { score: 2, notes: "BCP/DR plan exists but not comprehensive across all systems" }
+  rc-02: { score: 1, notes: "RTO/RPO not formally defined for most systems" }

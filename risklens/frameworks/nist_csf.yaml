@@ -1,0 +1,172 @@
+id: nist_csf
+name: NIST Cybersecurity Framework 2.0
+
+rubric: &rubric
+  0: "Not started — no defined practice"
+  1: "Ad hoc — practiced inconsistently, not documented"
+  2: "Defined — documented policy/process exists"
+  3: "Managed — consistently followed and measured"
+  4: "Optimized — continuously improved, integrated into operations"
+
+functions:
+  - id: govern
+    name: Govern
+    weight: 1.0
+    categories:
+      - id: gov-risk-strategy
+        name: Risk Management Strategy
+        weight: 1.0
+        questions:
+          - id: gov-01
+            text: Is there a documented, leadership-approved risk management strategy?
+            weight: 1.0
+            rubric: *rubric
+          - id: gov-02
+            text: Are risk appetite and tolerance levels defined and communicated?
+            weight: 0.8
+            rubric: *rubric
+      - id: gov-vendor
+        name: Supply Chain / Vendor Risk
+        weight: 1.2
+        questions:
+          - id: gov-03
+            text: Is there a formal vendor risk assessment process for new vendors (RFP/security review)?
+            weight: 1.2
+            rubric: *rubric
+          - id: gov-04
+            text: Are existing vendors periodically reassessed for security and compliance risk?
+            weight: 1.0
+            rubric: *rubric
+          - id: gov-05
+            text: Are vendor contracts reviewed for security, data handling, and audit rights?
+            weight: 0.9
+            rubric: *rubric
+      - id: gov-audit
+        name: Audit Readiness
+        weight: 1.0
+        questions:
+          - id: gov-06
+            text: Is there a current inventory of compliance obligations (e.g. SOC 2, HIPAA, state regs)?
+            weight: 1.0
+            rubric: *rubric
+          - id: gov-07
+            text: Can evidence for control effectiveness be produced on demand for an auditor?
+            weight: 1.1
+            rubric: *rubric
+
+  - id: identify
+    name: Identify
+    weight: 1.0
+    categories:
+      - id: id-asset
+        name: Asset Management
+        weight: 1.0
+        questions:
+          - id: id-01
+            text: Is there an up-to-date inventory of systems, applications, and data assets?
+            weight: 1.0
+            rubric: *rubric
+          - id: id-02
+            text: Is data classified by sensitivity (e.g. public/internal/confidential/restricted)?
+            weight: 0.9
+            rubric: *rubric
+      - id: id-risk-assessment
+        name: Risk Assessment
+        weight: 1.0
+        questions:
+          - id: id-03
+            text: Are risk assessments performed on new systems/projects before launch?
+            weight: 1.0
+            rubric: *rubric
+
+  - id: protect
+    name: Protect
+    weight: 1.2
+    categories:
+      - id: pr-identity
+        name: Identity Management, Authentication & Access Control
+        weight: 1.3
+        questions:
+          - id: pr-01
+            text: Is single sign-on (SSO) implemented for core business applications?
+            weight: 1.2
+            rubric: *rubric
+          - id: pr-02
+            text: Is multi-factor authentication (MFA) enforced for privileged and remote access?
+            weight: 1.3
+            rubric: *rubric
+          - id: pr-03
+            text: Is access provisioned/deprovisioned on a documented joiner-mover-leaver process?
+            weight: 1.0
+            rubric: *rubric
+          - id: pr-04
+            text: Are access reviews (recertification) performed on a regular cadence?
+            weight: 0.9
+            rubric: *rubric
+      - id: pr-data
+        name: Data Security
+        weight: 1.0
+        questions:
+          - id: pr-05
+            text: Is sensitive data encrypted at rest and in transit?
+            weight: 1.1
+            rubric: *rubric
+          - id: pr-06
+            text: Are backups tested for successful restoration on a defined schedule?
+            weight: 0.9
+            rubric: *rubric
+
+  - id: detect
+    name: Detect
+    weight: 1.0
+    categories:
+      - id: dt-monitoring
+        name: Continuous Monitoring
+        weight: 1.0
+        questions:
+          - id: dt-01
+            text: Is there centralized logging/monitoring across critical systems?
+            weight: 1.0
+            rubric: *rubric
+          - id: dt-02
+            text: Are alerts triaged and investigated within a defined SLA?
+            weight: 0.9
+            rubric: *rubric
+
+  - id: respond
+    name: Respond
+    weight: 1.0
+    categories:
+      - id: rs-planning
+        name: Incident Response Planning
+        weight: 1.0
+        questions:
+          - id: rs-01
+            text: Is there a documented, leadership-approved incident response plan?
+            weight: 1.1
+            rubric: *rubric
+          - id: rs-02
+            text: Is the incident response plan tested (tabletop or live) at least annually?
+            weight: 1.0
+            rubric: *rubric
+          - id: rs-03
+            text: Are incident communication paths (internal, customer, regulator) predefined?
+            weight: 0.9
+            rubric: *rubric
+
+  - id: recover
+    name: Recover
+    weight: 1.0
+    categories:
+      - id: rc-planning
+        name: Recovery Planning
+        weight: 1.0
+        questions:
+          - id: rc-01
+            text: Is there a documented business continuity / disaster recovery plan?
+            weight: 1.0
+            rubric: *rubric
+          - id: rc-02
+            text: Are recovery time/point objectives (RTO/RPO) defined for critical systems?
+            weight: 0.9
+            rubric: *rubric
