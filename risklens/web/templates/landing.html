@@ -2,71 +2,111 @@
 {% block title %}RiskLens: AI-assisted security readiness assessment{% endblock %}
 {% block content %}
 
-<section class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow">Enterprise Security Readiness</p>
-    <h1>Know your security gaps before an auditor does.</h1>
-    <p class="hero-sub">
-      RiskLens scores your organization against NIST CSF 2.0, ranks the gaps by real business
-      impact, and turns the result into a leadership-ready report and an actionable Jira backlog.
-      No consultants, no six-week engagement.
-    </p>
-    <div class="cta-row">
-      <a href="/app" class="btn btn-primary">Try the live demo</a>
-      <a href="/how-it-works" class="btn btn-secondary">See how it works</a>
-    </div>
-    <p class="hero-note">Free to run. No signup. No data leaves your machine unless you turn on AI narration.</p>
-  </div>
-
-  <div class="hero-mock" aria-hidden="true">
-    <div class="mock-window">
-      <div class="mock-titlebar">
-        <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+<section class="hero-band">
+  <div class="hero-inner">
+    <div class="hero-copy fade-in fade-in-1">
+      <p class="eyebrow">Enterprise Security Readiness</p>
+      <h1>Know your security gaps before an auditor does.</h1>
+      <p class="hero-sub">
+        RiskLens scores your organization against NIST CSF 2.0, ranks the gaps by real business
+        impact, and turns the result into a leadership-ready report and an actionable Jira
+        backlog. No consultants, no six-week engagement.
+      </p>
+      <div class="cta-row">
+        <a href="/app" class="btn btn-primary">Try the live demo</a>
+        <a href="/how-it-works" class="btn btn-secondary">See how it works</a>
       </div>
-      <div class="mock-body">
-        <p class="mock-org">Acme Financial Services</p>
-        <p class="mock-score"><span class="score-badge">2.04 / 4.0</span> Defined</p>
-        <ul class="mock-findings">
-          <li><span class="mock-priority mock-priority-high"></span> Vendors not periodically reassessed</li>
-          <li><span class="mock-priority mock-priority-high"></span> Audit evidence not on demand</li>
-          <li><span class="mock-priority mock-priority-med"></span> No annual IR tabletop exercise</li>
-        </ul>
+      <p class="hero-note">Free to run. No signup. No data leaves your machine unless you turn on AI narration.</p>
+    </div>
+
+    <div class="hero-mock fade-in fade-in-2" aria-hidden="true">
+      <div class="mock-window">
+        <div class="mock-titlebar">
+          <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+        </div>
+        <div class="mock-body">
+          <p class="mock-org">Acme Financial Services</p>
+          <p class="mock-score"><span class="score-badge">2.04 / 4.0</span> Defined</p>
+          <ul class="mock-findings">
+            <li><span class="mock-priority mock-priority-high"></span> Vendors not periodically reassessed</li>
+            <li><span class="mock-priority mock-priority-high"></span> Audit evidence not on demand</li>
+            <li><span class="mock-priority mock-priority-med"></span> No annual IR tabletop exercise</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+<div class="stat-bar fade-in fade-in-3">
+  <div class="stat"><span class="stat-num">6</span><span class="stat-label">NIST CSF functions covered</span></div>
+  <div class="stat"><span class="stat-num">28</span><span class="stat-label">automated tests</span></div>
+  <div class="stat"><span class="stat-num">$0</span><span class="stat-label">to run the scoring engine</span></div>
+  <div class="stat"><span class="stat-num">MIT</span><span class="stat-label">open source license</span></div>
+</div>
+
 <section class="feature-grid">
   <h2>What it does</h2>
   <div class="cards">
     <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
       <h3>Deterministic scoring</h3>
       <p>A weighted scoring engine, not a black box. Every score is explainable and can be recomputed by hand from the numbers on the page.</p>
     </div>
     <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>
+      </div>
       <h3>AI-narrated exec summary</h3>
       <p>Claude turns the scored findings into a leadership-facing summary and remediation plan. It narrates the findings. It never invents or re-scores them.</p>
     </div>
     <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+      </div>
       <h3>Framework-aligned</h3>
       <p>Built on NIST CSF 2.0's six functions: Govern, Identify, Protect, Detect, Respond, Recover. The same language your auditors already use.</p>
     </div>
     <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 012-2h12a2 2 0 012 2v1.5a1.8 1.8 0 000 3.6V15a2 2 0 01-2 2H6a2 2 0 01-2-2v-1.9a1.8 1.8 0 000-3.6V8z"/><path d="M9 6.5v11" stroke-dasharray="2.2 2.2"/></svg>
+      </div>
       <h3>Jira-ready backlog</h3>
       <p>Export the prioritized findings straight into a CSV your team can import into Jira. Findings don't die in a slide deck.</p>
     </div>
   </div>
 </section>
 
-<section class="why-matters">
-  <h2>Why it matters</h2>
-  <p>
-    Boards and auditors expect evidence-based answers about security posture, not a spreadsheet
-    someone updates once a year. Manual assessments are slow, inconsistent between reviewers, and
-    hard to defend when someone asks "why is this the priority?" RiskLens turns a filled-out
-    questionnaire into a scored, ranked, and explainable action plan in minutes, so the next
-    conversation with leadership starts with an answer instead of a shrug.
-  </p>
+<section class="tint-band">
+  <div class="why-matters-inner">
+    <div>
+      <h2>Why it matters</h2>
+      <p>
+        Boards and auditors expect evidence-based answers about security posture, not a
+        spreadsheet someone updates once a year. Manual assessments are slow, inconsistent
+        between reviewers, and hard to defend when someone asks "why is this the priority?"
+        RiskLens turns a filled-out questionnaire into a scored, ranked, and explainable action
+        plan in minutes, so the next conversation with leadership starts with an answer instead
+        of a shrug.
+      </p>
+    </div>
+    <div class="matters-graphic" aria-hidden="true">
+      <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="300" height="240" rx="20" fill="rgba(29,78,216,0.07)"/>
+        <rect x="50" y="150" width="30" height="70" rx="6" fill="#1d4ed8"/>
+        <rect x="100" y="110" width="30" height="110" rx="6" fill="#2563eb"/>
+        <rect x="150" y="70" width="30" height="150" rx="6" fill="#22d3ee"/>
+        <rect x="200" y="130" width="30" height="90" rx="6" fill="#1d4ed8" opacity="0.55"/>
+        <circle cx="252" cy="55" r="6" fill="#22d3ee"/>
+        <circle cx="274" cy="88" r="4" fill="#1d4ed8"/>
+        <circle cx="230" cy="38" r="3" fill="#2563eb"/>
+        <circle cx="258" cy="182" r="23" fill="white" stroke="#1d4ed8" stroke-width="2"/>
+        <path d="M248 182l7 7 15-15" stroke="#1d4ed8" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
 </section>
 
 <section class="differentiators">
@@ -111,15 +151,18 @@
   <p class="testimonials-note">RiskLens is a portfolio project without production customers yet. The quotes below illustrate the kind of feedback the product is designed to earn.</p>
   <div class="cards cards-3">
     <blockquote class="card">
-      <p>"We used to spend a week building the vendor risk narrative for the board. This got us there in an afternoon."</p>
+      <span class="quote-mark">&ldquo;</span>
+      <p>We used to spend a week building the vendor risk narrative for the board. This got us there in an afternoon.</p>
       <cite>Security Program Lead, mid-size fintech</cite>
     </blockquote>
     <blockquote class="card">
-      <p>"The scoring is the first tool I've used where I can actually explain to an auditor why something is priority one."</p>
+      <span class="quote-mark">&ldquo;</span>
+      <p>The scoring is the first tool I've used where I can actually explain to an auditor why something is priority one.</p>
       <cite>IT Director, healthcare services</cite>
     </blockquote>
     <blockquote class="card">
-      <p>"Exporting straight to Jira meant the findings actually turned into tickets instead of a forgotten PDF."</p>
+      <span class="quote-mark">&ldquo;</span>
+      <p>Exporting straight to Jira meant the findings actually turned into tickets instead of a forgotten PDF.</p>
       <cite>GRC Manager, enterprise SaaS</cite>
     </blockquote>
   </div>
