@@ -21,6 +21,7 @@ from risklens.models import Answer, Assessment
 from risklens.report.jira_csv import FIELDNAMES as JIRA_FIELDNAMES
 from risklens.report.jira_csv import build_rows as build_jira_rows
 from risklens.scoring import DEFAULT_FINDING_THRESHOLD, score_assessment, tier_for_score
+from risklens.simulate import simulate_improvement
 
 WEB_DIR = Path(__file__).parent
 SAMPLE_ANSWERS_PATH = WEB_DIR.parent.parent / "examples" / "sample_answers.yaml"
@@ -115,6 +116,23 @@ async def assess(request: Request):
             "tier_for_score": tier_for_score,
             "answers_yaml": answers_yaml,
         },
+    )
+
+
+@app.post("/simulate", response_class=HTMLResponse)
+async def simulate(request: Request):
+    form = await request.form()
+    answers_yaml = str(form.get("answers_yaml") or "")
+    question_ids = form.getlist("question_ids")
+
+    assessment = parse_assessment(answers_yaml)
+    framework = load_framework(assessment.framework_id)
+    sim = simulate_improvement(framework, assessment, list(question_ids))
+
+    return templates.TemplateResponse(
+        request,
+        "simulate.html",
+        {"sim": sim, "answers_yaml": answers_yaml},
     )
 
 

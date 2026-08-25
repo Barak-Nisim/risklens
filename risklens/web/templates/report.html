@@ -28,20 +28,26 @@
 
   <h3>Findings (prioritized)</h3>
   {% if result.findings %}
-  <table>
-    <thead><tr><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
-    <tbody>
-      {% for f in result.findings %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ f.question.text }}</td>
-        <td>{{ f.function.name }} / {{ f.category.name }}</td>
-        <td>{{ "%d"|format(f.score) }}/4</td>
-        <td>{{ "%.1f"|format(f.question.weight) }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <form method="post" action="/simulate">
+    <textarea name="answers_yaml" class="hidden-field">{{ answers_yaml }}</textarea>
+    <table>
+      <thead><tr><th></th><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
+      <tbody>
+        {% for f in result.findings %}
+        <tr>
+          <td><input type="checkbox" name="question_ids" value="{{ f.question.id }}"></td>
+          <td>{{ loop.index }}</td>
+          <td>{{ f.question.text }}</td>
+          <td>{{ f.function.name }} / {{ f.category.name }}</td>
+          <td>{{ "%d"|format(f.score) }}/4</td>
+          <td>{{ "%.1f"|format(f.question.weight) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit">Simulate fixing checked findings</button>
+    <p class="field-caption">Recomputes the score assuming the checked findings are addressed (raised to 4/4), so you can see the impact before doing the work.</p>
+  </form>
   {% else %}
   <p>No findings below the configured threshold.</p>
   {% endif %}

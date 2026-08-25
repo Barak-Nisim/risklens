@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}RiskLens: What-If Simulation{% endblock %}
+{% block content %}
+<div class="container">
+  <p><a href="/app">&larr; Back to demo</a></p>
+  <h1>What if these findings were fixed?</h1>
+  <p class="subtitle">{{ sim.question_ids|length }} finding(s) simulated at {{ sim.target_score }}/4.</p>
+
+  <dl class="meta">
+    <dt>Overall score (before)</dt><dd>{{ "%.2f"|format(sim.baseline.overall_score) }} / 4.0 ({{ sim.baseline.tier }})</dd>
+    <dt>Overall score (after)</dt><dd>{{ "%.2f"|format(sim.hypothetical.overall_score) }} / 4.0 ({{ sim.hypothetical.tier }})</dd>
+    <dt>Change</dt><dd>{{ "%+.2f"|format(sim.overall_score_delta) }}</dd>
+  </dl>
+
+  <h3>Findings resolved ({{ sim.resolved_finding_ids|length }})</h3>
+  {% if sim.resolved_finding_ids %}
+  <ul>
+    {% for qid in sim.resolved_finding_ids %}
+    <li>{{ sim.baseline.framework.question_by_id(qid).text }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>None of the simulated changes cleared the finding threshold on their own.</p>
+  {% endif %}
+
+  {% if sim.remaining_finding_ids %}
+  <h3>Findings still open ({{ sim.remaining_finding_ids|length }})</h3>
+  <ul>
+    {% for qid in sim.remaining_finding_ids %}
+    <li>{{ sim.baseline.framework.question_by_id(qid).text }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <details class="yaml-view">
+    <summary>View simulated answers as YAML (engineering view)</summary>
+    <pre><code>{{ answers_yaml }}</code></pre>
+  </details>
+</div>
+{% endblock %}

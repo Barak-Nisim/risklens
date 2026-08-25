@@ -99,3 +99,30 @@ def test_jira_export_returns_csv_attachment():
     assert "attachment" in response.headers["content-disposition"]
     body = response.text
     assert body.startswith("Summary,Issue Type,Priority,Description,Labels")
+
+
+def test_report_findings_table_has_simulate_checkboxes_and_button():
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert 'name="question_ids"' in response.text
+    assert "Simulate fixing checked findings" in response.text
+
+
+def test_simulate_shows_before_after_comparison():
+    response = client.post(
+        "/simulate",
+        data={"answers_yaml": SAMPLE_YAML, "question_ids": ["gov-04"]},
+    )
+
+    assert response.status_code == 200
+    assert "What if these findings were fixed" in response.text
+    assert "Overall score (before)" in response.text
+    assert "Overall score (after)" in response.text
+    assert "1 finding(s) simulated" in response.text
+
+
+def test_simulate_with_no_findings_selected_shows_zero_findings_simulated():
+    response = client.post("/simulate", data={"answers_yaml": SAMPLE_YAML})
+
+    assert response.status_code == 200
+    assert "0 finding(s) simulated" in response.text

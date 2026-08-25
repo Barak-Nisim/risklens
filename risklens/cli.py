@@ -44,6 +44,20 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Write the report to a file instead of stdout",
     )
+    assess.add_argument(
+        "--simulate",
+        metavar="QUESTION_IDS",
+        default=None,
+        help="Comma-separated question ids to hypothetically improve and show the effect"
+        " (e.g. pr-02,gv-04)",
+    )
+    assess.add_argument(
+        "--simulate-target",
+        type=int,
+        default=4,
+        metavar="SCORE",
+        help="Hypothetical score to simulate for --simulate question ids (default: 4)",
+    )
 
     serve = subparsers.add_parser("serve", help="Run the RiskLens web UI locally")
     serve.add_argument("--host", default="127.0.0.1", help="Bind host (default: 127.0.0.1)")
@@ -77,6 +91,19 @@ def _run_assess(args: argparse.Namespace) -> int:
 
         write_jira_csv(result, args.jira_export)
         print(f"Jira CSV written to {args.jira_export}", file=sys.stderr)
+
+    if args.simulate:
+        from risklens.simulate import render_simulation, simulate_improvement
+
+        question_ids = [q.strip() for q in args.simulate.split(",") if q.strip()]
+        sim = simulate_improvement(
+            framework,
+            assessment,
+            question_ids,
+            target_score=args.simulate_target,
+            finding_threshold=args.threshold,
+        )
+        print("\n" + render_simulation(sim))
 
     return 0
 
