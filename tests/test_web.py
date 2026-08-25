@@ -55,7 +55,9 @@ def test_app_form_is_a_real_questionnaire_prefilled_from_sample():
     assert response.text.count('checked="checked"') == len(SAMPLE_ASSESSMENT.answers)
 
 
-def test_assess_renders_deterministic_report_from_structured_form():
+def test_assess_renders_deterministic_report_from_structured_form(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
     response = client.post("/assess", data=_sample_form_data())
 
     assert response.status_code == 200
@@ -67,7 +69,9 @@ def test_assess_renders_deterministic_report_from_structured_form():
     assert "Executive summary" not in response.text
 
 
-def test_assess_with_no_answers_still_scores_as_all_zero():
+def test_assess_with_no_answers_still_scores_as_all_zero(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
     response = client.post("/assess", data={"org_name": "Empty Co", "date": ""})
 
     assert response.status_code == 200
@@ -75,8 +79,9 @@ def test_assess_with_no_answers_still_scores_as_all_zero():
     assert "0.00 / 4.0 (Initial)" in response.text
 
 
-def test_assess_ai_checkbox_ignored_without_api_key(monkeypatch):
+def test_assess_ai_checkbox_ignored_without_api_key(monkeypatch, tmp_path):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
 
     response = client.post("/assess", data=_sample_form_data(use_ai="1"))
 
@@ -84,11 +89,31 @@ def test_assess_ai_checkbox_ignored_without_api_key(monkeypatch):
     assert "Executive summary" not in response.text
 
 
-def test_report_includes_view_as_yaml_engineering_section():
+def test_report_includes_view_as_yaml_engineering_section(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
     response = client.post("/assess", data=_sample_form_data())
 
     assert "View as YAML" in response.text
     assert "org_name: Acme Financial Services" in response.text
+
+
+def test_assess_shows_no_trend_on_first_run(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert "Posture over time" not in response.text
+
+
+def test_assess_shows_trend_on_second_run(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
+    client.post("/assess", data=_sample_form_data())
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert "Posture over time" in response.text
+    assert "held steady" in response.text
 
 
 def test_jira_export_returns_csv_attachment():
@@ -101,7 +126,9 @@ def test_jira_export_returns_csv_attachment():
     assert body.startswith("Summary,Issue Type,Priority,Description,Labels")
 
 
-def test_report_findings_table_has_simulate_checkboxes_and_button():
+def test_report_findings_table_has_simulate_checkboxes_and_button(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
     response = client.post("/assess", data=_sample_form_data())
 
     assert 'name="question_ids"' in response.text

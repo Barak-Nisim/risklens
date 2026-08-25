@@ -12,6 +12,30 @@
     <dt>Overall score</dt><dd>{{ "%.2f"|format(result.overall_score) }} / 4.0 ({{ result.tier }})</dd>
   </dl>
 
+  {% if history and history|length > 1 %}
+  <div class="trend-box">
+    <h3>Posture over time</h3>
+    <table>
+      <thead><tr><th>Date</th><th>Overall Score</th><th>Tier</th></tr></thead>
+      <tbody>
+        {% for snap in history %}
+        <tr>
+          <td>{{ snap.date or "n/a" }}</td>
+          <td>{{ "%.2f"|format(snap.overall_score) }}</td>
+          <td>{{ snap.tier }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% set change = history[-1].overall_score - history[0].overall_score %}
+    <p class="field-caption">
+      Overall score has
+      {% if change > 0 %}improved{% elif change < 0 %}declined{% else %}held steady{% endif %}
+      by {{ "%+.2f"|format(change) }} across {{ history|length }} assessments.
+    </p>
+  </div>
+  {% endif %}
+
   <h3>Function scores</h3>
   <table>
     <thead><tr><th>Function</th><th>Score</th><th>Tier</th></tr></thead>

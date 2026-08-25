@@ -16,6 +16,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from risklens.history import record_snapshot
 from risklens.loader import dump_assessment, load_assessment, load_framework, parse_assessment
 from risklens.models import Answer, Assessment
 from risklens.report.jira_csv import FIELDNAMES as JIRA_FIELDNAMES
@@ -100,6 +101,7 @@ async def assess(request: Request):
     )
     result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
     answers_yaml = dump_assessment(assessment)
+    history = record_snapshot(result)
 
     ai_narrative = None
     if form.get("use_ai") and _ai_available():
@@ -115,6 +117,7 @@ async def assess(request: Request):
             "ai_narrative": ai_narrative,
             "tier_for_score": tier_for_score,
             "answers_yaml": answers_yaml,
+            "history": history,
         },
     )
 

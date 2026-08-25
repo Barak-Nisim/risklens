@@ -6,6 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from risklens.history import record_snapshot, render_trend
 from risklens.loader import load_assessment, load_framework
 from risklens.report.markdown import render
 from risklens.scoring import DEFAULT_FINDING_THRESHOLD, score_assessment
@@ -78,7 +79,11 @@ def _run_assess(args: argparse.Namespace) -> int:
 
         ai_narrative = generate_narrative(result)
 
+    history = record_snapshot(result)
     report = render(result, ai_narrative=ai_narrative)
+    trend = render_trend(history)
+    if trend:
+        report += "\n\n" + trend
 
     if args.output:
         Path(args.output).write_text(report, encoding="utf-8")

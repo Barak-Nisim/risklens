@@ -444,6 +444,14 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
 .legend-pills { display: flex; gap: 1rem; flex-wrap: wrap; color: var(--muted); }
 .legend-pill strong { color: var(--accent); margin-right: 0.3rem; }
 
+.trend-box {
+  background: var(--tint-bg);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0 1.5rem;
+}
+.trend-box h3 { margin-top: 0; }
+
 .progress-indicator {
   position: sticky;
   top: 0.5rem;
