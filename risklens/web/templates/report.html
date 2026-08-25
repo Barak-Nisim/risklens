@@ -76,6 +76,43 @@
   <p>No findings below the configured threshold.</p>
   {% endif %}
 
+  {% if result.findings %}
+  <h3>Risk decisions</h3>
+  <div class="decisions-list">
+    {% for f in result.findings %}
+    {% set decision = decisions.get(f.question.id) %}
+    <div class="decision-row">
+      <p class="decision-question">{{ f.question.text }}</p>
+      {% if decision %}
+      <p class="decision-current">
+        <span class="decision-status decision-{{ decision.status }}">{{ decision.status|capitalize }}</span>
+        {{ decision.rationale }}
+        {% if decision.decided_at %}<span class="hint">({{ decision.decided_at }})</span>{% endif %}
+      </p>
+      <form method="post" action="/decisions/clear" class="decision-form">
+        <input type="hidden" name="answers_yaml" value="{{ answers_yaml }}">
+        <input type="hidden" name="question_id" value="{{ f.question.id }}">
+        <button type="submit" class="link-button">Clear decision</button>
+      </form>
+      {% else %}
+      <form method="post" action="/decisions/record" class="decision-form">
+        <input type="hidden" name="answers_yaml" value="{{ answers_yaml }}">
+        <input type="hidden" name="question_id" value="{{ f.question.id }}">
+        <select name="status">
+          <option value="accepted">Accept</option>
+          <option value="mitigated">Mitigate</option>
+          <option value="transferred">Transfer</option>
+          <option value="deferred">Defer</option>
+        </select>
+        <input type="text" name="rationale" placeholder="Rationale (optional)">
+        <button type="submit">Save decision</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if ai_narrative %}
   <h3>Executive summary</h3>
   <p>{{ ai_narrative.executive_summary }}</p>

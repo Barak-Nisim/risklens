@@ -79,3 +79,56 @@ def test_assess_shows_trend_on_second_run(capsys, monkeypatch, tmp_path):
     assert exit_code == 0
     assert "Posture over time" in captured.out
     assert "held steady" in captured.out
+
+
+def test_decisions_list_when_empty(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path))
+
+    exit_code = main(["decisions", "list", "Acme Co"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "No decisions recorded yet." in captured.err
+
+
+def test_decisions_record_and_list(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path))
+
+    main(
+        [
+            "decisions",
+            "record",
+            "Acme Co",
+            "gov-04",
+            "accepted",
+            "--rationale",
+            "Compensating control in place",
+        ]
+    )
+    exit_code = main(["decisions", "list", "Acme Co"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "gov-04: accepted -- Compensating control in place" in captured.out
+
+
+def test_decisions_rejects_unknown_status(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path))
+
+    try:
+        main(["decisions", "record", "Acme Co", "gov-04", "ignored"])
+        raise AssertionError("expected SystemExit from argparse choices validation")
+    except SystemExit:
+        pass
+
+
+def test_decisions_clear(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path))
+    main(["decisions", "record", "Acme Co", "gov-04", "accepted"])
+
+    main(["decisions", "clear", "Acme Co", "gov-04"])
+    exit_code = main(["decisions", "list", "Acme Co"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "No decisions recorded yet." in captured.err

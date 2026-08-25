@@ -7,6 +7,7 @@ no scoring or narration logic lives here. Run locally with `risklens serve`.
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import io
 import os
 from pathlib import Path
@@ -16,6 +17,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from risklens.decisions import clear_decision, load_decisions, record_decision
 from risklens.history import record_snapshot
 from risklens.loader import dump_assessment, load_assessment, load_framework, parse_assessment
 from risklens.models import Answer, Assessment
@@ -118,8 +120,59 @@ async def assess(request: Request):
             "tier_for_score": tier_for_score,
             "answers_yaml": answers_yaml,
             "history": history,
+            "decisions": load_decisions(assessment.org_name),
         },
     )
+
+
+def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLResponse:
+    """Re-scores an assessment from its YAML and re-renders report.html --
+    used after recording or clearing a decision, since the report page has
+    no other persistent URL to redirect back to."""
+    assessment = parse_assessment(answers_yaml)
+    framework = load_framework(assessment.framework_id)
+    result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+
+    return templates.TemplateResponse(
+        request,
+        "report.html",
+        {
+            "result": result,
+            "ai_narrative": None,
+            "tier_for_score": tier_for_score,
+            "answers_yaml": answers_yaml,
+            "history": [],
+            "decisions": load_decisions(assessment.org_name),
+        },
+    )
+
+
+@app.post("/decisions/record", response_class=HTMLResponse)
+async def decisions_record(request: Request):
+    form = await request.form()
+    answers_yaml = str(form.get("answers_yaml") or "")
+    assessment = parse_assessment(answers_yaml)
+
+    record_decision(
+        assessment.org_name,
+        str(form.get("question_id") or ""),
+        str(form.get("status") or ""),
+        str(form.get("rationale") or ""),
+        decided_at=dt.date.today().isoformat(),
+    )
+
+    return _render_report_with_decisions(request, answers_yaml)
+
+
+@app.post("/decisions/clear", response_class=HTMLResponse)
+async def decisions_clear(request: Request):
+    form = await request.form()
+    answers_yaml = str(form.get("answers_yaml") or "")
+    assessment = parse_assessment(answers_yaml)
+
+    clear_decision(assessment.org_name, str(form.get("question_id") or ""))
+
+    return _render_report_with_decisions(request, answers_yaml)
 
 
 @app.post("/simulate", response_class=HTMLResponse)

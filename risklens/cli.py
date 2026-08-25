@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import sys
 from pathlib import Path
 
+from risklens.decisions import DECISION_STATUSES, clear_decision, load_decisions, record_decision
 from risklens.history import record_snapshot, render_trend
 from risklens.loader import load_assessment, load_framework
 from risklens.report.markdown import render
@@ -65,6 +67,22 @@ def _build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--port", type=int, default=8000, help="Bind port (default: 8000)")
     serve.add_argument("--reload", action="store_true", help="Auto-reload on code changes")
 
+    decisions = subparsers.add_parser("decisions", help="Manage risk acceptance decisions")
+    decisions_action = decisions.add_subparsers(dest="decisions_action", required=True)
+
+    list_parser = decisions_action.add_parser("list", help="List recorded decisions for an org")
+    list_parser.add_argument("org_name")
+
+    record_parser = decisions_action.add_parser("record", help="Record a decision for a finding")
+    record_parser.add_argument("org_name")
+    record_parser.add_argument("question_id")
+    record_parser.add_argument("status", choices=sorted(DECISION_STATUSES))
+    record_parser.add_argument("--rationale", default="", help="Why this disposition was chosen")
+
+    clear_parser = decisions_action.add_parser("clear", help="Clear a recorded decision")
+    clear_parser.add_argument("org_name")
+    clear_parser.add_argument("question_id")
+
     return parser
 
 
@@ -120,6 +138,33 @@ def _run_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_decisions(args: argparse.Namespace) -> int:
+    if args.decisions_action == "list":
+        decisions = load_decisions(args.org_name)
+        if not decisions:
+            print("No decisions recorded yet.", file=sys.stderr)
+        else:
+            for question_id, decision in decisions.items():
+                line = f"{question_id}: {decision.status}"
+                if decision.rationale:
+                    line += f" -- {decision.rationale}"
+                print(line)
+    elif args.decisions_action == "record":
+        record_decision(
+            args.org_name,
+            args.question_id,
+            args.status,
+            args.rationale,
+            decided_at=dt.date.today().isoformat(),
+        )
+        print(f"Recorded '{args.status}' for {args.question_id}.", file=sys.stderr)
+    elif args.decisions_action == "clear":
+        clear_decision(args.org_name, args.question_id)
+        print(f"Cleared decision for {args.question_id}.", file=sys.stderr)
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
@@ -128,6 +173,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_assess(args)
     if args.command == "serve":
         return _run_serve(args)
+    if args.command == "decisions":
+        return _run_decisions(args)
 
     parser.print_help()
     return 1

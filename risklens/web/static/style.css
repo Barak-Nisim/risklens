@@ -452,6 +452,52 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
 }
 .trend-box h3 { margin-top: 0; }
 
+.decisions-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.decision-row {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+.decision-question { margin: 0 0 0.5rem; font-weight: 500; font-size: 0.92rem; }
+.decision-form { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.decision-form select,
+.decision-form input[type="text"] {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+.decision-form input[type="text"] { flex: 1; min-width: 12rem; }
+.decision-form button {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.88rem;
+}
+.decision-current { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.decision-status {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  margin-right: 0.4rem;
+  color: white;
+}
+.decision-accepted { background: #667085; }
+.decision-mitigated { background: #16a34a; }
+.decision-transferred { background: #2563eb; }
+.decision-deferred { background: #d97706; }
+.link-button {
+  background: none;
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
 .progress-indicator {
   position: sticky;
   top: 0.5rem;

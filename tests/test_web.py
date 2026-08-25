@@ -56,7 +56,8 @@ def test_app_form_is_a_real_questionnaire_prefilled_from_sample():
 
 
 def test_assess_renders_deterministic_report_from_structured_form(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data=_sample_form_data())
 
@@ -70,7 +71,8 @@ def test_assess_renders_deterministic_report_from_structured_form(monkeypatch, t
 
 
 def test_assess_with_no_answers_still_scores_as_all_zero(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data={"org_name": "Empty Co", "date": ""})
 
@@ -81,7 +83,8 @@ def test_assess_with_no_answers_still_scores_as_all_zero(monkeypatch, tmp_path):
 
 def test_assess_ai_checkbox_ignored_without_api_key(monkeypatch, tmp_path):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data=_sample_form_data(use_ai="1"))
 
@@ -90,7 +93,8 @@ def test_assess_ai_checkbox_ignored_without_api_key(monkeypatch, tmp_path):
 
 
 def test_report_includes_view_as_yaml_engineering_section(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data=_sample_form_data())
 
@@ -99,7 +103,8 @@ def test_report_includes_view_as_yaml_engineering_section(monkeypatch, tmp_path)
 
 
 def test_assess_shows_no_trend_on_first_run(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data=_sample_form_data())
 
@@ -107,13 +112,70 @@ def test_assess_shows_no_trend_on_first_run(monkeypatch, tmp_path):
 
 
 def test_assess_shows_trend_on_second_run(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     client.post("/assess", data=_sample_form_data())
     response = client.post("/assess", data=_sample_form_data())
 
     assert "Posture over time" in response.text
     assert "held steady" in response.text
+
+
+def test_report_shows_a_decision_form_for_each_finding(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert "Risk decisions" in response.text
+    assert 'action="/decisions/record"' in response.text
+    assert "Save decision" in response.text
+
+
+def test_decisions_record_shows_the_saved_decision_on_the_report(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+    assess_response = client.post("/assess", data=_sample_form_data())
+
+    response = client.post(
+        "/decisions/record",
+        data={
+            "answers_yaml": SAMPLE_YAML,
+            "question_id": "gov-04",
+            "status": "accepted",
+            "rationale": "Compensating control in place",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "Accepted" in response.text
+    assert "Compensating control in place" in response.text
+    assert "Clear decision" in response.text
+    assert assess_response.status_code == 200  # baseline call sanity check
+
+
+def test_decisions_clear_removes_the_decision(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+    client.post(
+        "/decisions/record",
+        data={
+            "answers_yaml": SAMPLE_YAML,
+            "question_id": "gov-04",
+            "status": "deferred",
+            "rationale": "Revisit next quarter",
+        },
+    )
+
+    response = client.post(
+        "/decisions/clear",
+        data={"answers_yaml": SAMPLE_YAML, "question_id": "gov-04"},
+    )
+
+    assert response.status_code == 200
+    assert "Revisit next quarter" not in response.text
+    assert "Save decision" in response.text  # form is back, no decision recorded
 
 
 def test_jira_export_returns_csv_attachment():
@@ -127,7 +189,8 @@ def test_jira_export_returns_csv_attachment():
 
 
 def test_report_findings_table_has_simulate_checkboxes_and_button(monkeypatch, tmp_path):
-    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
 
     response = client.post("/assess", data=_sample_form_data())
 
