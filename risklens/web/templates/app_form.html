@@ -32,6 +32,8 @@
       </div>
     </div>
 
+    <p class="progress-indicator" id="progress-indicator" aria-live="polite"></p>
+
     {% for function in framework.functions %}
     <details class="function-section" {% if loop.first %}open{% endif %}>
       <summary>{{ function.name }}</summary>
@@ -48,7 +50,7 @@
             id="q_{{ question.id }}_{{ level }}"
             name="q_{{ question.id }}"
             value="{{ level }}"
-            {% if current and current.score == level %}checked{% endif %}
+            {% if current and current.score == level %}checked="checked"{% endif %}
           >
           <label for="q_{{ question.id }}_{{ level }}" title="{{ legend[level] }}">{{ level }}</label>
           {% endfor %}
@@ -79,4 +81,31 @@
     <p class="field-caption">Scores your answers against NIST CSF 2.0, ranks the gaps, and renders the report below. With AI narration on, it also writes an executive summary and remediation plan.</p>
   </form>
 </div>
+
+<script>
+  (function () {
+    var form = document.querySelector('form[action="/assess"]');
+    var indicator = document.getElementById("progress-indicator");
+    if (!form || !indicator) return;
+
+    function questionGroups() {
+      var seen = {};
+      form.querySelectorAll('input[type="radio"]').forEach(function (el) {
+        seen[el.name] = true;
+      });
+      return Object.keys(seen);
+    }
+
+    function update() {
+      var groups = questionGroups();
+      var answered = groups.filter(function (name) {
+        return form.querySelector('input[name="' + name + '"]:checked');
+      }).length;
+      indicator.textContent = answered + " of " + groups.length + " answered";
+    }
+
+    form.addEventListener("change", update);
+    update();
+  })();
+</script>
 {% endblock %}

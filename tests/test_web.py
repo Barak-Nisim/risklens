@@ -49,8 +49,10 @@ def test_app_form_is_a_real_questionnaire_prefilled_from_sample():
     assert "Acme Financial Services" in response.text
     assert "Govern" in response.text and "Protect" in response.text
     assert 'name="q_pr-01"' in response.text
-    # every one of the 21 sample answers should be pre-checked
-    assert response.text.count("checked") == len(SAMPLE_ASSESSMENT.answers)
+    # every sample answer should be pre-checked (checked="checked", not the
+    # bare "checked" substring, since the live progress-indicator script
+    # also contains a ":checked" CSS selector elsewhere on the page)
+    assert response.text.count('checked="checked"') == len(SAMPLE_ASSESSMENT.answers)
 
 
 def test_assess_renders_deterministic_report_from_structured_form():
