@@ -28,11 +28,12 @@ OUTPUT_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
+                    "question_id": {"type": "string"},
                     "title": {"type": "string"},
                     "rationale": {"type": "string"},
                     "next_step": {"type": "string"},
                 },
-                "required": ["title", "rationale", "next_step"],
+                "required": ["question_id", "title", "rationale", "next_step"],
                 "additionalProperties": False,
             },
         },
@@ -41,12 +42,13 @@ OUTPUT_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
+                    "question_id": {"type": "string"},
                     "risk": {"type": "string"},
                     "likelihood": {"type": "string"},
                     "impact": {"type": "string"},
                     "owner": {"type": "string"},
                 },
-                "required": ["risk", "likelihood", "impact", "owner"],
+                "required": ["question_id", "risk", "likelihood", "impact", "owner"],
                 "additionalProperties": False,
             },
         },

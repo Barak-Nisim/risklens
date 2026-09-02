@@ -14,6 +14,7 @@ FAKE_NARRATIVE = {
     "executive_summary": "Overall posture is developing, with vendor and IR gaps.",
     "remediation_plan": [
         {
+            "question_id": "id-01",
             "title": "Reassess existing vendors",
             "rationale": "Highest-priority gap by weight.",
             "next_step": "Schedule a Q3 vendor risk review.",
@@ -21,6 +22,7 @@ FAKE_NARRATIVE = {
     ],
     "risk_register": [
         {
+            "question_id": "id-01",
             "risk": "Unreviewed vendors introduce unmanaged third-party risk",
             "likelihood": "Medium",
             "impact": "High",
@@ -64,4 +66,9 @@ def test_generate_narrative_uses_structured_output_schema(mock_anthropic):
     _, kwargs = mock_anthropic.return_value.messages.create.call_args
     assert kwargs["model"] == "claude-opus-4-8"
     assert kwargs["output_config"]["format"]["type"] == "json_schema"
-    assert "executive_summary" in kwargs["output_config"]["format"]["schema"]["required"]
+    schema = kwargs["output_config"]["format"]["schema"]
+    assert "executive_summary" in schema["required"]
+    # question_id is required on both list sections so the executive dashboard can
+    # match AI prose back to the deterministic rows it enriches.
+    assert "question_id" in schema["properties"]["remediation_plan"]["items"]["required"]
+    assert "question_id" in schema["properties"]["risk_register"]["items"]["required"]

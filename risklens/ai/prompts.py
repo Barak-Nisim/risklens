@@ -34,6 +34,7 @@ def build_findings_payload(result: ScoreResult) -> dict:
         ],
         "findings": [
             {
+                "question_id": f.question.id,
                 "question": f.question.text,
                 "function": f.function.name,
                 "category": f.category.name,
@@ -53,7 +54,10 @@ def build_user_prompt(result: ScoreResult) -> str:
         "Write:\n"
         "1. A short executive summary (around 150 words) in plain, leadership-facing language.\n"
         "2. A prioritized remediation plan, one entry per finding, in the order given, "
-        "each with a short title, a one-sentence rationale, and a concrete next step.\n"
+        "each with a short title, a one-sentence rationale, and a concrete next step. "
+        "Include the exact question_id from the input on each entry so it can be matched "
+        "back to its finding.\n"
         "3. A risk register: one row per finding, with a risk statement, likelihood, "
-        "impact, and a suggested owner expressed as a role or team, not a person's name."
+        "impact, and a suggested owner expressed as a role or team, not a person's name. "
+        "Include the exact question_id from the input on each row."
     )
