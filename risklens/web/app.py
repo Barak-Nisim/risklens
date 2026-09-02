@@ -17,6 +17,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from risklens.dashboard import build_executive_view, enrich_executive_view
 from risklens.decisions import clear_decision, load_decisions, record_decision
 from risklens.history import record_snapshot
 from risklens.loader import dump_assessment, load_assessment, load_framework, parse_assessment
@@ -111,6 +112,9 @@ async def assess(request: Request):
 
         ai_narrative = generate_narrative(result)
 
+    decisions = load_decisions(assessment.org_name)
+    executive_view = enrich_executive_view(build_executive_view(result, decisions), ai_narrative)
+
     return templates.TemplateResponse(
         request,
         "report.html",
@@ -120,7 +124,8 @@ async def assess(request: Request):
             "tier_for_score": tier_for_score,
             "answers_yaml": answers_yaml,
             "history": history,
-            "decisions": load_decisions(assessment.org_name),
+            "decisions": decisions,
+            "executive_view": executive_view,
         },
     )
 
@@ -132,6 +137,7 @@ def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLRe
     assessment = parse_assessment(answers_yaml)
     framework = load_framework(assessment.framework_id)
     result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+    decisions = load_decisions(assessment.org_name)
 
     return templates.TemplateResponse(
         request,
@@ -142,7 +148,8 @@ def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLRe
             "tier_for_score": tier_for_score,
             "answers_yaml": answers_yaml,
             "history": [],
-            "decisions": load_decisions(assessment.org_name),
+            "decisions": decisions,
+            "executive_view": build_executive_view(result, decisions),
         },
     )
 

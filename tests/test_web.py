@@ -70,6 +70,55 @@ def test_assess_renders_deterministic_report_from_structured_form(monkeypatch, t
     assert "Executive summary" not in response.text
 
 
+def test_assess_report_leads_with_executive_dashboard(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert response.status_code == 200
+    assert "Executive risk dashboard" in response.text
+    assert "Regulatory and audit exposure" in response.text  # deterministic impact metadata
+    assert "Compliance / GRC lead" in response.text
+    # dashboard reads before the demoted findings detail view
+    assert response.text.index("Executive risk dashboard") < response.text.index(
+        "Detailed findings and risk decisions"
+    )
+
+
+def test_assess_findings_table_is_demoted_into_a_collapsible_details(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    # the detail view is wrapped in a <details> but the simulate + decision
+    # controls it depends on are still present in the DOM
+    assert "<details class=\"findings-detail\">" in response.text
+    assert "Findings (prioritized)" in response.text
+    assert 'name="question_ids"' in response.text
+    assert "Save decision" in response.text
+
+
+def test_dashboard_residual_band_reflects_a_recorded_decision(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+    client.post("/assess", data=_sample_form_data())
+
+    response = client.post(
+        "/decisions/record",
+        data={
+            "answers_yaml": SAMPLE_YAML,
+            "question_id": "gov-07",
+            "status": "accepted",
+            "rationale": "Compensating control",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "Accepted (retained)" in response.text
+
+
 def test_assess_with_no_answers_still_scores_as_all_zero(monkeypatch, tmp_path):
     monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
     monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))

@@ -12,6 +12,41 @@
     <dt>Overall score</dt><dd>{{ "%.2f"|format(result.overall_score) }} / 4.0 ({{ result.tier }})</dd>
   </dl>
 
+  {% if executive_view %}
+  {% set band_class = {"High": "band-high", "Medium": "band-medium", "Low": "band-low"} %}
+  <h3>Executive risk dashboard</h3>
+  {% if executive_view.risks %}
+  <table class="dashboard-table">
+    <thead>
+      <tr>
+        <th>#</th><th>Risk</th><th>Business impact</th><th>Suggested owner</th>
+        <th>Recommended action</th><th>Residual risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for risk in executive_view.risks %}
+      <tr>
+        <td>{{ risk.rank }}</td>
+        <td>
+          {{ risk.title }}
+          <span class="band-badge {{ band_class.get(risk.severity_band, 'band-low') }}">{{ risk.severity_band }}</span>
+        </td>
+        <td>{{ risk.business_impact }}</td>
+        <td>{{ risk.suggested_owner }}</td>
+        <td>{{ risk.recommended_action }}</td>
+        <td>
+          <span class="band-badge {{ band_class.get(risk.residual_band, 'band-accepted') }}">{{ risk.residual_band }}</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="field-caption">Top {{ executive_view.top_n }} risks by weighted severity. Residual risk reflects any recorded decision; it is a label derived from the finding and its disposition, not a recomputed score.</p>
+  {% else %}
+  <p>No findings below the configured threshold.</p>
+  {% endif %}
+  {% endif %}
+
   {% if history and history|length > 1 %}
   <div class="trend-box">
     <h3>Posture over time</h3>
@@ -49,6 +84,9 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <details class="findings-detail">
+  <summary>Detailed findings and risk decisions (engineering view)</summary>
 
   <h3>Findings (prioritized)</h3>
   {% if result.findings %}
@@ -112,6 +150,7 @@
     {% endfor %}
   </div>
   {% endif %}
+  </details>
 
   {% if ai_narrative %}
   <h3>Executive summary</h3>
