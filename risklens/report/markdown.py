@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from risklens.dashboard import ExecutiveView, enrich_executive_view
 from risklens.models import ScoreResult
 from risklens.scoring import tier_for_score
 
 
-def render(result: ScoreResult, ai_narrative: dict | None = None) -> str:
+def render(
+    result: ScoreResult,
+    ai_narrative: dict | None = None,
+    executive_view: ExecutiveView | None = None,
+) -> str:
     lines: list[str] = []
     a = result.assessment
 
@@ -16,6 +21,26 @@ def render(result: ScoreResult, ai_narrative: dict | None = None) -> str:
     lines.append(f"**Framework:** {result.framework.name}  ")
     lines.append(f"**Overall Score:** {result.overall_score:.2f} / 4.0 ({result.tier})")
     lines.append("")
+
+    if executive_view is not None:
+        view = enrich_executive_view(executive_view, ai_narrative)
+        lines.append("## Executive Risk Dashboard")
+        lines.append("")
+        if view.risks:
+            lines.append(
+                "| # | Risk | Business impact | Suggested owner "
+                "| Recommended action | Residual risk |"
+            )
+            lines.append("|---|---|---|---|---|---|")
+            for risk in view.risks:
+                lines.append(
+                    f"| {risk.rank} | {risk.title} | {risk.business_impact} "
+                    f"| {risk.suggested_owner} | {risk.recommended_action} "
+                    f"| {risk.residual_band} |"
+                )
+        else:
+            lines.append("No findings below the configured threshold.")
+        lines.append("")
 
     lines.append("## Function Scores")
     lines.append("")

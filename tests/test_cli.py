@@ -12,6 +12,44 @@ def test_assess_no_ai_prints_report(capsys, monkeypatch, tmp_path):
     assert "Overall Score:" in captured.out
 
 
+def test_assess_no_ai_leads_with_the_executive_dashboard(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    exit_code = main(["assess", "examples/sample_answers.yaml", "--no-ai"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "## Executive Risk Dashboard" in captured.out
+    # dashboard leads, above the function scores table
+    assert captured.out.index("## Executive Risk Dashboard") < captured.out.index(
+        "## Function Scores"
+    )
+    assert "Residual risk" in captured.out
+
+
+def test_assess_dashboard_reflects_a_recorded_decision(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    main(
+        [
+            "decisions",
+            "record",
+            "Acme Financial Services",
+            "gov-07",
+            "accepted",
+            "--rationale",
+            "compensating control",
+        ]
+    )
+    exit_code = main(["assess", "examples/sample_answers.yaml", "--no-ai"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Accepted (retained)" in captured.out
+
+
 def test_assess_no_ai_writes_to_output_file(monkeypatch, tmp_path):
     monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
     output_path = tmp_path / "report.md"

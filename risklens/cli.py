@@ -7,6 +7,7 @@ import datetime as dt
 import sys
 from pathlib import Path
 
+from risklens.dashboard import build_executive_view
 from risklens.decisions import DECISION_STATUSES, clear_decision, load_decisions, record_decision
 from risklens.history import record_snapshot, render_trend
 from risklens.loader import load_assessment, load_framework
@@ -98,7 +99,9 @@ def _run_assess(args: argparse.Namespace) -> int:
         ai_narrative = generate_narrative(result)
 
     history = record_snapshot(result)
-    report = render(result, ai_narrative=ai_narrative)
+    decisions = load_decisions(result.assessment.org_name)
+    executive_view = build_executive_view(result, decisions)
+    report = render(result, ai_narrative=ai_narrative, executive_view=executive_view)
     trend = render_trend(history)
     if trend:
         report += "\n\n" + trend
