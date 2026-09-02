@@ -41,6 +41,8 @@ def load_framework(name_or_path: str) -> Framework:
                     name=cat_raw["name"],
                     weight=float(cat_raw["weight"]),
                     questions=questions,
+                    business_impact=cat_raw.get("business_impact", ""),
+                    suggested_owner=cat_raw.get("suggested_owner", ""),
                 )
             )
         functions.append(

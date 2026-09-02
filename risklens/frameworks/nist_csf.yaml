@@ -16,6 +16,8 @@ functions:
       - id: gov-risk-strategy
         name: Risk Management Strategy
         weight: 1.0
+        business_impact: Unmanaged enterprise risk and unclear leadership accountability
+        suggested_owner: CISO / Executive leadership
         questions:
           - id: gov-01
             text: Is there a documented, leadership-approved risk management strategy?
@@ -28,6 +30,8 @@ functions:
       - id: gov-vendor
         name: Supply Chain / Vendor Risk
         weight: 1.2
+        business_impact: Third-party and supply-chain breach exposure
+        suggested_owner: Vendor Risk / Procurement
         questions:
           - id: gov-03
             text: Is there a formal vendor risk assessment process for new vendors (RFP/security review)?
@@ -44,6 +48,8 @@ functions:
       - id: gov-audit
         name: Audit Readiness
         weight: 1.0
+        business_impact: Regulatory and audit exposure
+        suggested_owner: Compliance / GRC lead
         questions:
           - id: gov-06
             text: Is there a current inventory of compliance obligations (e.g. SOC 2, HIPAA, state regs)?
@@ -61,6 +67,8 @@ functions:
       - id: id-asset
         name: Asset Management
         weight: 1.0
+        business_impact: Blind spots in what must be protected
+        suggested_owner: IT Asset Management
         questions:
           - id: id-01
             text: Is there an up-to-date inventory of systems, applications, and data assets?
@@ -73,6 +81,8 @@ functions:
       - id: id-risk-assessment
         name: Risk Assessment
         weight: 1.0
+        business_impact: Unassessed risk in new systems and projects
+        suggested_owner: Security Risk / GRC
         questions:
           - id: id-03
             text: Are risk assessments performed on new systems/projects before launch?
@@ -86,6 +96,8 @@ functions:
       - id: pr-identity
         name: Identity Management, Authentication & Access Control
         weight: 1.3
+        business_impact: Account-takeover and unauthorized-access exposure
+        suggested_owner: IAM / Security Engineering
         questions:
           - id: pr-01
             text: Is single sign-on (SSO) implemented for core business applications?
@@ -106,6 +118,8 @@ functions:
       - id: pr-data
         name: Data Security
         weight: 1.0
+        business_impact: Data loss or exposure of sensitive information
+        suggested_owner: Security Engineering / Data Protection
         questions:
           - id: pr-05
             text: Is sensitive data encrypted at rest and in transit?
@@ -123,6 +137,8 @@ functions:
       - id: dt-monitoring
         name: Continuous Monitoring
         weight: 1.0
+        business_impact: Delayed or missed detection of active threats
+        suggested_owner: Security Operations (SOC)
         questions:
           - id: dt-01
             text: Is there centralized logging/monitoring across critical systems?
@@ -140,6 +156,8 @@ functions:
       - id: rs-planning
         name: Incident Response Planning
         weight: 1.0
+        business_impact: Slow, uncoordinated response that worsens incident cost
+        suggested_owner: Incident Response / Security Operations
         questions:
           - id: rs-01
             text: Is there a documented, leadership-approved incident response plan?
@@ -161,6 +179,8 @@ functions:
       - id: rc-planning
         name: Recovery Planning
         weight: 1.0
+        business_impact: Prolonged outages and unmet recovery objectives
+        suggested_owner: IT Operations / Business Continuity
         questions:
           - id: rc-01
             text: Is there a documented business continuity / disaster recovery plan?

@@ -33,6 +33,8 @@ class Category:
     name: str
     weight: float
     questions: tuple[Question, ...]
+    business_impact: str = ""
+    suggested_owner: str = ""
 
 
 @dataclass(frozen=True)
