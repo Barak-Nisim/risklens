@@ -20,6 +20,8 @@ Scoring model:
 from __future__ import annotations
 
 from risklens.models import (
+    DEFAULT_FINDING_THRESHOLD,
+    MATURITY_LEVELS,
     Answer,
     Assessment,
     CategoryScore,
@@ -31,7 +33,6 @@ from risklens.models import (
 )
 
 MAX_SCORE = 4.0
-DEFAULT_FINDING_THRESHOLD = 2.0
 
 TIER_BOUNDARIES = (
     (0.8, "Initial"),
@@ -47,6 +48,22 @@ def tier_for_score(score: float) -> str:
         if score < boundary:
             return tier
     return "Optimized"
+
+
+# The four presets app_form.html's dropdown offers, each with a plain-English
+# intensity name; the CLI's --threshold accepts any float, so a value outside
+# this set gets a generic "Custom" label rather than a guessed nearest match.
+_SENSITIVITY_NAMES = {1.0: "Lenient", 2.0: "Standard", 3.0: "Strict", 4.0: "Very strict"}
+
+
+def finding_sensitivity_label(threshold: float) -> str:
+    """Human label for a finding_threshold value, e.g. 'Standard (below
+    "Defined")' -- built from MATURITY_LEVELS so it can't drift from the
+    labels shown on each answered question."""
+    name = _SENSITIVITY_NAMES.get(threshold, "Custom")
+    if 0 < threshold <= MAX_SCORE:
+        return f'{name} (below "{MATURITY_LEVELS[int(threshold)]}")'
+    return f"{name} ({threshold:.1f})"
 
 
 def _weighted_average(scored_weights: list[tuple[float, float]]) -> float:

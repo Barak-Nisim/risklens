@@ -1,8 +1,9 @@
+from dataclasses import replace
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from risklens.loader import load_assessment
+from risklens.loader import dump_assessment, load_assessment
 from risklens.web.app import app
 
 client = TestClient(app)
@@ -68,6 +69,60 @@ def test_assess_renders_deterministic_report_from_structured_form(monkeypatch, t
     assert "2.04 / 4.0 (Defined)" in response.text
     # no AI narrative requested -> no executive summary section
     assert "Executive summary" not in response.text
+    # default finding sensitivity, unrequested
+    assert "Standard (below &#34;Defined&#34;)" in response.text
+
+
+def test_app_form_offers_finding_sensitivity_with_standard_preselected():
+    response = client.get("/app")
+
+    assert response.status_code == 200
+    assert 'name="finding_threshold"' in response.text
+    assert '<option value="2.0" selected>' in response.text
+    assert "Lenient" in response.text
+    assert "Very strict" in response.text
+
+
+def test_assess_with_a_lenient_threshold_produces_zero_findings(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data(finding_threshold="1"))
+
+    assert response.status_code == 200
+    assert "No findings below the configured threshold." in response.text
+    assert "Lenient (below &#34;Ad hoc&#34;)" in response.text
+
+
+def test_assess_with_a_stricter_threshold_surfaces_more_findings(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data(finding_threshold="4"))
+
+    assert response.status_code == 200
+    assert "No findings below the configured threshold." not in response.text
+    assert "Very strict (below &#34;Optimized&#34;)" in response.text
+
+
+def test_finding_threshold_persists_through_a_decision_record_rescore(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+    strict_yaml = dump_assessment(replace(SAMPLE_ASSESSMENT, finding_threshold=4.0))
+
+    response = client.post(
+        "/decisions/record",
+        data={
+            "answers_yaml": strict_yaml,
+            "question_id": "gov-04",
+            "status": "accepted",
+            "rationale": "Compensating control in place",
+        },
+    )
+
+    assert response.status_code == 200
+    # the threshold chosen at submission time survives the re-score, rather
+    # than silently resetting to the default
+    assert "Very strict (below &#34;Optimized&#34;)" in response.text
 
 
 def test_assess_report_leads_with_executive_dashboard(monkeypatch, tmp_path):

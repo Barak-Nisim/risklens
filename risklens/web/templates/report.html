@@ -10,6 +10,7 @@
     <dt>Date</dt><dd>{{ result.assessment.date or "n/a" }}</dd>
     <dt>Framework</dt><dd>{{ result.framework.name }}</dd>
     <dt>Overall score</dt><dd>{{ "%.2f"|format(result.overall_score) }} / 4.0 ({{ result.tier }})</dd>
+    <dt>Finding sensitivity</dt><dd>{{ finding_sensitivity_label(result.assessment.finding_threshold) }}</dd>
   </dl>
 
   {% if executive_view %}

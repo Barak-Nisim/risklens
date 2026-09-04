@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from risklens.dashboard import ExecutiveView, enrich_executive_view
 from risklens.models import ScoreResult
-from risklens.scoring import tier_for_score
+from risklens.scoring import finding_sensitivity_label, tier_for_score
 
 
 def render(
@@ -19,7 +19,8 @@ def render(
     lines.append("")
     lines.append(f"**Date:** {a.date or 'n/a'}  ")
     lines.append(f"**Framework:** {result.framework.name}  ")
-    lines.append(f"**Overall Score:** {result.overall_score:.2f} / 4.0 ({result.tier})")
+    lines.append(f"**Overall Score:** {result.overall_score:.2f} / 4.0 ({result.tier})  ")
+    lines.append(f"**Finding Sensitivity:** {finding_sensitivity_label(a.finding_threshold)}")
     lines.append("")
 
     if executive_view is not None:

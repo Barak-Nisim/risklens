@@ -21,6 +21,14 @@
         <label for="date">Assessment date</label>
         <input type="date" id="date" name="date" value="{{ date }}">
       </div>
+      <div>
+        <label for="finding_threshold">Finding sensitivity</label>
+        <select id="finding_threshold" name="finding_threshold">
+          {% for value, label in finding_threshold_options %}
+          <option value="{{ value }}" {{ "selected" if finding_threshold == value }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
 
     <div class="legend-key">

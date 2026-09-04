@@ -7,7 +7,15 @@ from pathlib import Path
 
 import yaml
 
-from risklens.models import Answer, Assessment, Category, Framework, Function, Question
+from risklens.models import (
+    DEFAULT_FINDING_THRESHOLD,
+    Answer,
+    Assessment,
+    Category,
+    Framework,
+    Function,
+    Question,
+)
 
 BUILTIN_FRAMEWORKS = {"nist_csf"}
 
@@ -80,6 +88,8 @@ def parse_assessment(yaml_text: str) -> Assessment:
         date=raw.get("date", ""),
         framework_id=raw.get("framework", "nist_csf"),
         answers=answers,
+        # older assessment files predate this field
+        finding_threshold=float(raw.get("finding_threshold", DEFAULT_FINDING_THRESHOLD)),
     )
 
 
@@ -96,6 +106,7 @@ def dump_assessment(assessment: Assessment) -> str:
         "org_name": assessment.org_name,
         "date": assessment.date,
         "framework": assessment.framework_id,
+        "finding_threshold": assessment.finding_threshold,
         "answers": answers_raw,
     }
     return yaml.safe_dump(raw, sort_keys=False, allow_unicode=True)

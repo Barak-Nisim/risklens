@@ -1,6 +1,11 @@
 from risklens.loader import load_assessment, load_framework
 from risklens.models import Answer, Assessment, Category, Framework, Function, Question
-from risklens.scoring import MAX_SCORE, score_assessment, tier_for_score
+from risklens.scoring import (
+    MAX_SCORE,
+    finding_sensitivity_label,
+    score_assessment,
+    tier_for_score,
+)
 
 EXAMPLE_ANSWERS_PATH = "examples/sample_answers.yaml"
 
@@ -140,3 +145,15 @@ def test_full_nist_csf_framework_with_example_answers_runs_end_to_end():
         for qs in cs.question_scores
     }
     assert scored_ids == {q.id for q in framework.all_questions()}
+
+
+def test_finding_sensitivity_label_for_the_four_web_presets():
+    assert finding_sensitivity_label(1.0) == 'Lenient (below "Ad hoc")'
+    assert finding_sensitivity_label(2.0) == 'Standard (below "Defined")'
+    assert finding_sensitivity_label(3.0) == 'Strict (below "Managed")'
+    assert finding_sensitivity_label(4.0) == 'Very strict (below "Optimized")'
+
+
+def test_finding_sensitivity_label_falls_back_for_a_custom_cli_value():
+    assert finding_sensitivity_label(2.5) == 'Custom (below "Defined")'
+    assert finding_sensitivity_label(0.0) == "Custom (0.0)"

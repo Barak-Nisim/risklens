@@ -417,13 +417,14 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
 
 .org-fields {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 1rem;
   margin: 1.5rem 0;
 }
 .org-fields label { margin-bottom: 0.3rem; }
 .org-fields input[type="text"],
-.org-fields input[type="date"] {
+.org-fields input[type="date"],
+.org-fields select {
   width: 100%;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--border);

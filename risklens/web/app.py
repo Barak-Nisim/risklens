@@ -24,7 +24,12 @@ from risklens.loader import dump_assessment, load_assessment, load_framework, pa
 from risklens.models import Answer, Assessment
 from risklens.report.jira_csv import FIELDNAMES as JIRA_FIELDNAMES
 from risklens.report.jira_csv import build_rows as build_jira_rows
-from risklens.scoring import DEFAULT_FINDING_THRESHOLD, score_assessment, tier_for_score
+from risklens.scoring import (
+    DEFAULT_FINDING_THRESHOLD,
+    finding_sensitivity_label,
+    score_assessment,
+    tier_for_score,
+)
 from risklens.simulate import simulate_improvement
 
 WEB_DIR = Path(__file__).parent
@@ -42,12 +47,31 @@ def _sample_prefill() -> dict:
             "org_name": sample.org_name,
             "date": sample.date,
             "answers": sample.answers,
+            "finding_threshold": sample.finding_threshold,
         }
-    return {"org_name": "", "date": "", "answers": {}}
+    return {
+        "org_name": "",
+        "date": "",
+        "answers": {},
+        "finding_threshold": DEFAULT_FINDING_THRESHOLD,
+    }
 
 
 def _ai_available() -> bool:
     return bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+
+def _parse_threshold(raw: str | None) -> float:
+    """Finding sensitivity from the questionnaire form: falls back to the
+    default for a blank or unparsable value, and is clamped to the 0-4
+    maturity scale rather than trusting an out-of-range number through."""
+    if not raw:
+        return DEFAULT_FINDING_THRESHOLD
+    try:
+        value = float(raw)
+    except ValueError:
+        return DEFAULT_FINDING_THRESHOLD
+    return max(0.0, min(4.0, value))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -77,6 +101,10 @@ def app_form(request: Request):
             "org_name": prefill["org_name"],
             "date": prefill["date"],
             "prefill_answers": prefill["answers"],
+            "finding_threshold": prefill["finding_threshold"],
+            "finding_threshold_options": [
+                (value, finding_sensitivity_label(value)) for value in (1.0, 2.0, 3.0, 4.0)
+            ],
             "ai_available": _ai_available(),
             "error": None,
         },
@@ -101,8 +129,11 @@ async def assess(request: Request):
         date=str(form.get("date") or ""),
         framework_id="nist_csf",
         answers=answers,
+        finding_threshold=_parse_threshold(form.get("finding_threshold")),
     )
-    result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+    result = score_assessment(
+        framework, assessment, finding_threshold=assessment.finding_threshold
+    )
     answers_yaml = dump_assessment(assessment)
     history = record_snapshot(result)
 
@@ -122,6 +153,7 @@ async def assess(request: Request):
             "result": result,
             "ai_narrative": ai_narrative,
             "tier_for_score": tier_for_score,
+            "finding_sensitivity_label": finding_sensitivity_label,
             "answers_yaml": answers_yaml,
             "history": history,
             "decisions": decisions,
@@ -136,7 +168,9 @@ def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLRe
     no other persistent URL to redirect back to."""
     assessment = parse_assessment(answers_yaml)
     framework = load_framework(assessment.framework_id)
-    result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+    result = score_assessment(
+        framework, assessment, finding_threshold=assessment.finding_threshold
+    )
     decisions = load_decisions(assessment.org_name)
 
     return templates.TemplateResponse(
@@ -146,6 +180,7 @@ def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLRe
             "result": result,
             "ai_narrative": None,
             "tier_for_score": tier_for_score,
+            "finding_sensitivity_label": finding_sensitivity_label,
             "answers_yaml": answers_yaml,
             "history": [],
             "decisions": decisions,
@@ -190,7 +225,12 @@ async def simulate(request: Request):
 
     assessment = parse_assessment(answers_yaml)
     framework = load_framework(assessment.framework_id)
-    sim = simulate_improvement(framework, assessment, list(question_ids))
+    sim = simulate_improvement(
+        framework,
+        assessment,
+        list(question_ids),
+        finding_threshold=assessment.finding_threshold,
+    )
 
     return templates.TemplateResponse(
         request,
@@ -203,7 +243,9 @@ async def simulate(request: Request):
 def jira_export(answers_yaml: str = Form(...)):
     assessment = parse_assessment(answers_yaml)
     framework = load_framework(assessment.framework_id)
-    result = score_assessment(framework, assessment, finding_threshold=DEFAULT_FINDING_THRESHOLD)
+    result = score_assessment(
+        framework, assessment, finding_threshold=assessment.finding_threshold
+    )
 
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=JIRA_FIELDNAMES)

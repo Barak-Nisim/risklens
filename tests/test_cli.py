@@ -12,6 +12,32 @@ def test_assess_no_ai_prints_report(capsys, monkeypatch, tmp_path):
     assert "Overall Score:" in captured.out
 
 
+def test_assess_reports_the_default_finding_sensitivity(capsys, monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
+    exit_code = main(["assess", "examples/sample_answers.yaml", "--no-ai"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert 'Finding Sensitivity:** Standard (below "Defined")' in captured.out
+
+
+def test_assess_threshold_flag_is_reflected_in_the_reported_sensitivity(
+    capsys, monkeypatch, tmp_path
+):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path))
+
+    exit_code = main(
+        ["assess", "examples/sample_answers.yaml", "--no-ai", "--threshold", "3.0"]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    # --threshold actually changed what was scored (not just the label): the
+    # answers file's own (unset, default) value would have said "Standard"
+    assert 'Finding Sensitivity:** Strict (below "Managed")' in captured.out
+
+
 def test_assess_no_ai_leads_with_the_executive_dashboard(capsys, monkeypatch, tmp_path):
     monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
     monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))

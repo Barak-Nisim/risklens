@@ -10,7 +10,7 @@ Effort tags: **Minor** (an evening), **Moderate** (a focused day or two), **Majo
 2. **[Moderate]** Let users upload a custom framework YAML instead of only the two built-ins, with schema validation and a clear error if it's malformed.
 3. **[Shipped]** ~~Historical trend tracking: save assessments over time and show score delta between runs.~~ Shipped via `history.py`; see the "Posture over time" section on the report page.
 4. **[Moderate]** Industry-specific weight profiles (a fintech org and a healthcare org shouldn't necessarily weight the same questions identically).
-5. **[Minor]** Expose `--threshold` (finding sensitivity) as a form field in the web UI; it's already a CLI flag but hidden from the questionnaire.
+5. **[Shipped]** ~~Expose `--threshold` (finding sensitivity) as a form field in the web UI.~~ Shipped: `Assessment.finding_threshold` is now a real field (default preserved, older answer files and YAML round-trip unaffected), so the value chosen on the questionnaire survives every later re-score -- recording/clearing a decision, simulating a fix, exporting to Jira -- instead of silently resetting to the default. The web form offers four presets (Lenient/Standard/Strict/Very strict, each labeled against `MATURITY_LEVELS` via the new `finding_sensitivity_label()`); the CLI's `--threshold` keeps accepting any float. Fixed a real bug caught while wiring this up: the CLI's report showed the *file's* threshold, not the one `--threshold` had actually scored with, whenever they differed.
 6. **[Minor]** Add an "evidence type" tag to notes (policy doc / audit log / verbal confirmation) so findings can be sorted by how well-supported they are.
 
 ## Web UI / UX

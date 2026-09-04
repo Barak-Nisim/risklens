@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from risklens.dashboard import build_executive_view
@@ -89,6 +90,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _run_assess(args: argparse.Namespace) -> int:
     assessment = load_assessment(args.answers)
+    # --threshold is authoritative for this run regardless of what the answers
+    # file itself carries, so the assessment stored on the result (and used
+    # for the report's "Finding Sensitivity" line) matches what was actually
+    # scored, not a stale value from the file.
+    assessment = replace(assessment, finding_threshold=args.threshold)
     framework = load_framework(args.framework or assessment.framework_id)
     result = score_assessment(framework, assessment, finding_threshold=args.threshold)
 

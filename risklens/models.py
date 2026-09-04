@@ -18,6 +18,10 @@ MATURITY_LEVELS = {
     4: "Optimized",
 }
 
+# Lives here (not scoring.py, which imports it back) so Assessment can use it
+# as a field default without a models -> scoring -> models import cycle.
+DEFAULT_FINDING_THRESHOLD = 2.0
+
 
 @dataclass(frozen=True)
 class Question:
@@ -81,6 +85,12 @@ class Assessment:
     date: str
     framework_id: str
     answers: dict[str, Answer]
+    # Finding sensitivity chosen for this assessment -- carried on the
+    # Assessment (not passed around separately) so it survives the
+    # YAML round-trip and every later re-score (recording a decision,
+    # simulating a fix, exporting to Jira) uses the same threshold the
+    # questionnaire was submitted with, not silently the default.
+    finding_threshold: float = DEFAULT_FINDING_THRESHOLD
 
 
 @dataclass(frozen=True)
