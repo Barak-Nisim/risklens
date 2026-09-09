@@ -41,6 +41,7 @@
     </div>
 
     <p class="progress-indicator" id="progress-indicator" aria-live="polite"></p>
+    <p class="unanswered-banner" id="unanswered-banner" role="alert"></p>
 
     {% for function in framework.functions %}
     <details class="function-section" {% if loop.first %}open{% endif %}>
@@ -50,7 +51,7 @@
       {% for question in category.questions %}
       {% set current = prefill_answers.get(question.id) %}
       <fieldset class="question">
-        <legend>{{ question.text }}</legend>
+        <legend>{{ question.text }}<span class="unanswered-tag">Unanswered</span></legend>
         <div class="pill-row">
           {% for level in range(5) %}
           <input
@@ -94,6 +95,7 @@
   (function () {
     var form = document.querySelector('form[action="/assess"]');
     var indicator = document.getElementById("progress-indicator");
+    var banner = document.getElementById("unanswered-banner");
     if (!form || !indicator) return;
 
     function questionGroups() {
@@ -104,15 +106,57 @@
       return Object.keys(seen);
     }
 
-    function update() {
-      var groups = questionGroups();
-      var answered = groups.filter(function (name) {
-        return form.querySelector('input[name="' + name + '"]:checked');
-      }).length;
-      indicator.textContent = answered + " of " + groups.length + " answered";
+    function unansweredGroups() {
+      return questionGroups().filter(function (name) {
+        return !form.querySelector('input[name="' + name + '"]:checked');
+      });
     }
 
-    form.addEventListener("change", update);
+    function update() {
+      var groups = questionGroups();
+      var unanswered = unansweredGroups();
+      indicator.textContent = (groups.length - unanswered.length) + " of " + groups.length + " answered";
+
+      // Clear the highlight on any question the user just answered; leave
+      // still-unanswered ones marked once a submit attempt has flagged them.
+      form.querySelectorAll(".question.unanswered").forEach(function (fieldset) {
+        var radio = fieldset.querySelector('input[type="radio"]');
+        if (radio && form.querySelector('input[name="' + radio.name + '"]:checked')) {
+          fieldset.classList.remove("unanswered");
+        }
+      });
+      if (banner && banner.classList.contains("visible") && unanswered.length === 0) {
+        banner.classList.remove("visible");
+      }
+    }
+
+    // Unanswered questions score as 0, which is intentional -- this only
+    // surfaces that before submit rather than changing the behavior. The
+    // first submit with gaps highlights them and asks for confirmation;
+    // a second click on the same (unchanged) gaps goes through.
+    var confirmedWithGaps = false;
+    form.addEventListener("submit", function (event) {
+      var unanswered = unansweredGroups();
+      if (unanswered.length === 0 || confirmedWithGaps) return;
+
+      event.preventDefault();
+      unanswered.forEach(function (name) {
+        var radio = form.querySelector('input[name="' + name + '"]');
+        var fieldset = radio && radio.closest(".question");
+        if (fieldset) fieldset.classList.add("unanswered");
+      });
+      if (banner) {
+        banner.textContent = unanswered.length + " question" + (unanswered.length === 1 ? "" : "s") +
+          " unanswered (highlighted below) and will be scored as 0. Submit again to continue anyway.";
+        banner.classList.add("visible");
+      }
+      confirmedWithGaps = true;
+    });
+
+    form.addEventListener("change", function () {
+      confirmedWithGaps = false;
+      update();
+    });
     update();
   })();
 </script>

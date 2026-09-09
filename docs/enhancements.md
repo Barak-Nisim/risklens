@@ -23,7 +23,7 @@ Effort tags: **Minor** (an evening), **Moderate** (a focused day or two), **Majo
 12. **[Minor]** Mobile polish pass specifically on the pill-row radio controls; they're usable but not optimized for small touch targets.
 13. **[Shipped]** ~~Manual dark/light theme toggle.~~ Shipped.
 14. **[Moderate]** Autosave draft answers to `localStorage` as the user fills out the form.
-15. **[Minor]** Highlight unanswered questions before submit instead of silently scoring them as 0 (the scoring behavior is correct and intentional; the UI just doesn't surface it before submission).
+15. **[Shipped]** ~~Highlight unanswered questions before submit instead of silently scoring them as 0.~~ Shipped: unanswered questions still score as 0 (unchanged, intentional), but the first submit with gaps is caught client-side, highlights each unanswered question and its "Unanswered" tag, and shows a banner explaining they'll score as 0 -- submitting again goes through. Editing any answer after that clears its highlight and re-arms the check for any gaps still remaining.
 
 ## AI layer
 

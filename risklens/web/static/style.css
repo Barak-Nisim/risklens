@@ -551,6 +551,36 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
   color: var(--text);
 }
 
+.question.unanswered {
+  background: #fef2f2;
+  border-radius: 6px;
+  padding: 0.9rem 0.8rem 0;
+  margin-left: -0.8rem;
+  margin-right: -0.8rem;
+}
+.question.unanswered legend { color: #991b1b; }
+.question.unanswered .unanswered-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #991b1b;
+}
+.unanswered-tag { display: none; }
+
+.unanswered-banner {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  display: none;
+}
+.unanswered-banner.visible { display: block; }
+
 .pill-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
 .pill-row input[type="radio"] {
   position: absolute;
@@ -754,6 +784,10 @@ form.jira-export { margin-top: 1.5rem; }
   :root:not([data-theme="light"]) a { color: #60a5fa; }
   :root:not([data-theme="light"]) .nav-cta { color: white !important; }
   :root:not([data-theme="light"]) .error { background: #2a1414; color: #fca5a5; border-color: #5c2323; }
+  :root:not([data-theme="light"]) .unanswered-banner { background: #2a1414; color: #fca5a5; border-color: #5c2323; }
+  :root:not([data-theme="light"]) .question.unanswered { background: #2a1414; }
+  :root:not([data-theme="light"]) .question.unanswered legend,
+  :root:not([data-theme="light"]) .question.unanswered .unanswered-tag { color: #fca5a5; }
   :root:not([data-theme="light"]) .mock-titlebar { background: rgba(255, 255, 255, 0.04); }
   :root:not([data-theme="light"]) .stat-bar { box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.6); }
   :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: inline; }
@@ -772,6 +806,10 @@ form.jira-export { margin-top: 1.5rem; }
 :root[data-theme="dark"] a { color: #60a5fa; }
 :root[data-theme="dark"] .nav-cta { color: white !important; }
 :root[data-theme="dark"] .error { background: #2a1414; color: #fca5a5; border-color: #5c2323; }
+:root[data-theme="dark"] .unanswered-banner { background: #2a1414; color: #fca5a5; border-color: #5c2323; }
+:root[data-theme="dark"] .question.unanswered { background: #2a1414; }
+:root[data-theme="dark"] .question.unanswered legend,
+:root[data-theme="dark"] .question.unanswered .unanswered-tag { color: #fca5a5; }
 :root[data-theme="dark"] .mock-titlebar { background: rgba(255, 255, 255, 0.04); }
 :root[data-theme="dark"] .stat-bar { box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.6); }
 :root[data-theme="dark"] .theme-toggle .icon-sun { display: inline; }
