@@ -831,3 +831,96 @@ form.jira-export { margin-top: 1.5rem; }
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .theme-toggle .icon-sun { display: none; }
 .theme-toggle .icon-moon { display: inline; }
+
+/* ---------- print: the report page as a paper findings report ----------
+   Scoped to body.report-page so the marketing pages and the questionnaire
+   are untouched. `.print-hide` is the opt-out hook templates can apply to
+   anything that only makes sense on screen. */
+
+@media print {
+  @page { margin: 16mm; }
+
+  /* re-point the palette at ink-on-paper so every descendant that reads a
+     custom property prints legibly, including when the dark theme is active */
+  .report-page {
+    --border: #999999;
+    --muted: #333333;
+    --ink: #000000;
+    --accent: #000000;
+    --accent-dark: #000000;
+    --card-bg: #ffffff;
+    --page-bg: #ffffff;
+    --tint-bg: #ffffff;
+    --text: #000000;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10.5pt;
+  }
+
+  /* chrome and controls that mean nothing on paper */
+  .report-page .site-nav,
+  .report-page .site-footer,
+  .report-page .theme-toggle,
+  .report-page .yaml-view,
+  .report-page .decision-form,
+  .report-page .col-select,
+  .report-page .print-hide,
+  .report-page button,
+  .report-page input,
+  .report-page select,
+  .report-page textarea {
+    display: none !important;
+  }
+
+  .report-page .container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* the engineering view is a collapsed <details> on screen; print it open */
+  .report-page details::details-content { content-visibility: visible !important; }
+  /* :where() keeps this at low specificity so the hide rules above still win */
+  .report-page :where(details:not([open])) > :not(summary) { display: block; }
+  .report-page .findings-detail > summary {
+    color: #000000;
+    font-weight: 700;
+    list-style: none;
+  }
+  .report-page .findings-detail > summary::-webkit-details-marker { display: none; }
+  .report-page .findings-detail > summary::marker { content: ""; }
+
+  .report-page a { color: #000000; text-decoration: none; }
+
+  /* severity/disposition badges must read in grayscale: both already carry a
+     text label, so drop the tinted fill and outline them instead */
+  .report-page .band-badge,
+  .report-page .decision-status {
+    background: transparent !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .report-page .trend-box { border: 1px solid #999999; }
+
+  .report-page th,
+  .report-page td { border-bottom: 1px solid #999999; }
+  .report-page th { color: #000000; }
+
+  /* page-break behavior: repeat table headers, never split a row or a card */
+  .report-page thead { display: table-header-group; }
+  .report-page tr,
+  .report-page .decision-row,
+  .report-page .trend-box,
+  .report-page dl.meta,
+  .report-page li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .report-page h1,
+  .report-page h2,
+  .report-page h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+}

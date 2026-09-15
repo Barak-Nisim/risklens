@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block title %}RiskLens Report: {{ result.assessment.org_name }}{% endblock %}
+{% block body_class %}report-page{% endblock %}
 {% block content %}
 <div class="container">
-  <p><a href="/app">&larr; Back to demo</a></p>
+  <p class="print-hide"><a href="/app">&larr; Back to demo</a></p>
   <h1>RiskLens Security Readiness Report</h1>
   <h2>{{ result.assessment.org_name }}</h2>
 
@@ -94,11 +95,11 @@
   <form method="post" action="/simulate">
     <textarea name="answers_yaml" class="hidden-field">{{ answers_yaml }}</textarea>
     <table>
-      <thead><tr><th></th><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
+      <thead><tr><th class="col-select"></th><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
       <tbody>
         {% for f in result.findings %}
         <tr>
-          <td><input type="checkbox" name="question_ids" value="{{ f.question.id }}"></td>
+          <td class="col-select"><input type="checkbox" name="question_ids" value="{{ f.question.id }}"></td>
           <td>{{ loop.index }}</td>
           <td>{{ f.question.text }}</td>
           <td>{{ f.function.name }} / {{ f.category.name }}</td>
@@ -109,18 +110,18 @@
       </tbody>
     </table>
     <button type="submit">Simulate fixing checked findings</button>
-    <p class="field-caption">Recomputes the score assuming the checked findings are addressed (raised to 4/4), so you can see the impact before doing the work.</p>
+    <p class="field-caption print-hide">Recomputes the score assuming the checked findings are addressed (raised to 4/4), so you can see the impact before doing the work.</p>
   </form>
   {% else %}
   <p>No findings below the configured threshold.</p>
   {% endif %}
 
   {% if result.findings %}
-  <h3>Risk decisions</h3>
+  <h3{% if not decisions %} class="print-hide"{% endif %}>Risk decisions</h3>
   <div class="decisions-list">
     {% for f in result.findings %}
     {% set decision = decisions.get(f.question.id) %}
-    <div class="decision-row">
+    <div class="decision-row{% if not decision %} print-hide{% endif %}">
       <p class="decision-question">{{ f.question.text }}</p>
       {% if decision %}
       <p class="decision-current">
@@ -189,7 +190,7 @@
     <textarea name="answers_yaml" class="hidden-field">{{ answers_yaml }}</textarea>
     <button type="submit">Download Jira CSV</button>
   </form>
-  <p class="field-caption">Exports the prioritized findings above as a CSV with the columns Jira's CSV importer expects.</p>
+  <p class="field-caption print-hide">Exports the prioritized findings above as a CSV with the columns Jira's CSV importer expects.</p>
 
   <details class="yaml-view">
     <summary>View as YAML (engineering view)</summary>

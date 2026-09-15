@@ -19,7 +19,7 @@ Effort tags: **Minor** (an evening), **Moderate** (a focused day or two), **Majo
 8. **[Major]** Side-by-side comparison view: two orgs, or the same org at two points in time.
 9. **[Shipped]** ~~Live progress indicator on the questionnaire.~~ Shipped.
 10. **[Moderate]** PDF export of the report, in addition to the existing Markdown/HTML/CSV outputs.
-11. **[Minor]** Print-friendly stylesheet for the report page (`@media print`).
+11. **[Shipped]** ~~Print-friendly stylesheet for the report page (`@media print`).~~ Shipped: an `@media print` block in `static/style.css`, scoped to `body.report-page` (new `body_class` block in `base.html`) so the marketing pages and questionnaire print unchanged. Nav, footer, theme toggle, the simulate/decision/Jira controls, the checkbox column and the raw-YAML section drop out; the collapsed "engineering view" `<details>` prints expanded; the palette is re-pointed to black-on-white inside the block so a dark-theme session still prints legibly; severity and decision badges lose their tinted fill and print as outlined text labels, so nothing depends on color; `thead` repeats per page and rows, cards and the trend box use `break-inside: avoid`. Verified by printing a rendered report to PDF with headless Chrome.
 12. **[Minor]** Mobile polish pass specifically on the pill-row radio controls; they're usable but not optimized for small touch targets.
 13. **[Shipped]** ~~Manual dark/light theme toggle.~~ Shipped.
 14. **[Moderate]** Autosave draft answers to `localStorage` as the user fills out the form.
