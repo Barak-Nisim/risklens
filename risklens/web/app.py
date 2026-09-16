@@ -21,7 +21,14 @@ from risklens.dashboard import build_executive_view, enrich_executive_view
 from risklens.decisions import clear_decision, load_decisions, record_decision
 from risklens.history import record_snapshot
 from risklens.loader import dump_assessment, load_assessment, load_framework, parse_assessment
-from risklens.models import Answer, Assessment
+from risklens.models import (
+    EVIDENCE_TYPES,
+    Answer,
+    Assessment,
+    evidence_strength,
+    evidence_type_label,
+    normalize_evidence_type,
+)
 from risklens.report.jira_csv import FIELDNAMES as JIRA_FIELDNAMES
 from risklens.report.jira_csv import build_rows as build_jira_rows
 from risklens.scoring import (
@@ -105,6 +112,7 @@ def app_form(request: Request):
             "finding_threshold_options": [
                 (value, finding_sensitivity_label(value)) for value in (1.0, 2.0, 3.0, 4.0)
             ],
+            "evidence_type_options": list(EVIDENCE_TYPES.items()),
             "ai_available": _ai_available(),
             "error": None,
         },
@@ -122,7 +130,12 @@ async def assess(request: Request):
         if raw_score in (None, ""):
             continue
         notes = form.get(f"notes_{question.id}") or None
-        answers[question.id] = Answer(question_id=question.id, score=int(raw_score), notes=notes)
+        answers[question.id] = Answer(
+            question_id=question.id,
+            score=int(raw_score),
+            notes=notes,
+            evidence_type=normalize_evidence_type(str(form.get(f"evidence_{question.id}") or "")),
+        )
 
     assessment = Assessment(
         org_name=str(form.get("org_name") or "Untitled Organization"),
@@ -154,6 +167,8 @@ async def assess(request: Request):
             "ai_narrative": ai_narrative,
             "tier_for_score": tier_for_score,
             "finding_sensitivity_label": finding_sensitivity_label,
+            "evidence_type_label": evidence_type_label,
+            "evidence_strength": evidence_strength,
             "answers_yaml": answers_yaml,
             "history": history,
             "decisions": decisions,
@@ -181,6 +196,8 @@ def _render_report_with_decisions(request: Request, answers_yaml: str) -> HTMLRe
             "ai_narrative": None,
             "tier_for_score": tier_for_score,
             "finding_sensitivity_label": finding_sensitivity_label,
+            "evidence_type_label": evidence_type_label,
+            "evidence_strength": evidence_strength,
             "answers_yaml": answers_yaml,
             "history": [],
             "decisions": decisions,

@@ -92,16 +92,30 @@
 
   <h3>Findings (prioritized)</h3>
   {% if result.findings %}
+  <div class="findings-sort print-hide">
+    <label for="findings-sort">Sort by</label>
+    <select id="findings-sort">
+      <option value="priority">Priority (default)</option>
+      <option value="evidence-weakest">Evidence: weakest support first</option>
+      <option value="evidence-strongest">Evidence: strongest support first</option>
+    </select>
+  </div>
   <form method="post" action="/simulate">
     <textarea name="answers_yaml" class="hidden-field">{{ answers_yaml }}</textarea>
-    <table>
+    <table id="findings-table">
       <thead><tr><th class="col-select"></th><th>#</th><th>Question</th><th>Function / Category</th><th>Score</th><th>Weight</th></tr></thead>
       <tbody>
         {% for f in result.findings %}
-        <tr>
+        {% set answer = result.assessment.answers.get(f.question.id) %}
+        {% set evidence = answer.evidence_type if answer else "unspecified" %}
+        <tr data-priority-rank="{{ loop.index }}" data-evidence-strength="{{ evidence_strength(evidence) }}">
           <td class="col-select"><input type="checkbox" name="question_ids" value="{{ f.question.id }}"></td>
-          <td>{{ loop.index }}</td>
-          <td>{{ f.question.text }}</td>
+          <td class="col-rank">{{ loop.index }}</td>
+          <td>
+            {{ f.question.text }}
+            {% if answer and answer.notes %}<div class="finding-note">{{ answer.notes }}</div>{% endif %}
+            <span class="evidence-badge evidence-{{ evidence_strength(evidence) }}">{{ evidence_type_label(evidence) }}</span>
+          </td>
           <td>{{ f.function.name }} / {{ f.category.name }}</td>
           <td>{{ "%d"|format(f.score) }}/4</td>
           <td>{{ "%.1f"|format(f.question.weight) }}</td>
@@ -109,6 +123,7 @@
         {% endfor %}
       </tbody>
     </table>
+    <p class="field-caption print-hide">Each finding carries the evidence type recorded with its note. Sorting by weakest support first surfaces the gaps that rest on a verbal confirmation or nothing at all, which are the ones most likely to be wrong.</p>
     <button type="submit">Simulate fixing checked findings</button>
     <p class="field-caption print-hide">Recomputes the score assuming the checked findings are addressed (raised to 4/4), so you can see the impact before doing the work.</p>
   </form>
@@ -197,4 +212,40 @@
     <pre><code>{{ answers_yaml }}</code></pre>
   </details>
 </div>
+
+<script>
+  (function () {
+    var control = document.getElementById("findings-sort");
+    var table = document.getElementById("findings-table");
+    if (!control || !table) return;
+    var body = table.tBodies[0];
+
+    function rank(row) { return parseInt(row.getAttribute("data-priority-rank"), 10); }
+    function strength(row) { return parseInt(row.getAttribute("data-evidence-strength"), 10); }
+
+    control.addEventListener("change", function () {
+      var mode = control.value;
+      var rows = Array.prototype.slice.call(body.rows);
+
+      rows.sort(function (a, b) {
+        if (mode === "priority") return rank(a) - rank(b);
+        var delta = mode === "evidence-weakest"
+          ? strength(a) - strength(b)
+          : strength(b) - strength(a);
+        // findings with the same evidence type stay in priority order, so the
+        // ranking the report opens with is never lost, only regrouped
+        return delta !== 0 ? delta : rank(a) - rank(b);
+      });
+
+      rows.forEach(function (row) { body.appendChild(row); });
+      // renumber only after every row has moved, so the "#" column always
+      // reads 1..n down the page; the original priority rank stays on the
+      // row, so switching back to "Priority" restores it exactly
+      rows.forEach(function (row, index) {
+        var cell = row.querySelector(".col-rank");
+        if (cell) cell.textContent = index + 1;
+      });
+    });
+  })();
+</script>
 {% endblock %}

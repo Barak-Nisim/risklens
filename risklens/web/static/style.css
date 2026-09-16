@@ -615,13 +615,23 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
   outline-offset: 2px;
 }
 
+.notes-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .notes-input {
-  width: 100%;
+  flex: 1;
+  min-width: 12rem;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.85rem;
   color: var(--text);
+  background: var(--card-bg);
+}
+.evidence-select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
   background: var(--card-bg);
 }
 
@@ -720,7 +730,8 @@ form.jira-export { margin-top: 1.5rem; }
 
 .dashboard-table td { vertical-align: top; }
 
-.band-badge {
+.band-badge,
+.evidence-badge {
   display: inline-block;
   font-weight: 700;
   font-size: 0.72rem;
@@ -747,6 +758,43 @@ form.jira-export { margin-top: 1.5rem; }
 :root[data-theme="dark"] .band-medium { color: #fcd34d; }
 :root[data-theme="dark"] .band-low { color: #86efac; }
 :root[data-theme="dark"] .band-accepted { color: #cbd5e1; }
+
+/* ---------- evidence type ---------- */
+
+/* keyed off evidence strength (0 weakest .. 3 strongest), not the type name,
+   so the color reads as "how well-supported" at a glance */
+.evidence-0 { background: rgba(102, 112, 133, 0.16); color: var(--muted); border-color: rgba(102, 112, 133, 0.4); }
+.evidence-1 { background: rgba(217, 119, 6, 0.16); color: #b45309; border-color: rgba(217, 119, 6, 0.4); }
+.evidence-2 { background: rgba(37, 99, 235, 0.14); color: #1d4ed8; border-color: rgba(37, 99, 235, 0.4); }
+.evidence-3 { background: rgba(22, 163, 74, 0.14); color: #15803d; border-color: rgba(22, 163, 74, 0.4); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .evidence-0 { color: #cbd5e1; }
+  :root:not([data-theme="light"]) .evidence-1 { color: #fcd34d; }
+  :root:not([data-theme="light"]) .evidence-2 { color: #93c5fd; }
+  :root:not([data-theme="light"]) .evidence-3 { color: #86efac; }
+}
+:root[data-theme="dark"] .evidence-0 { color: #cbd5e1; }
+:root[data-theme="dark"] .evidence-1 { color: #fcd34d; }
+:root[data-theme="dark"] .evidence-2 { color: #93c5fd; }
+:root[data-theme="dark"] .evidence-3 { color: #86efac; }
+
+.finding-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0.3rem;
+}
+
+.findings-sort { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.findings-sort label { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.findings-sort select {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--card-bg);
+}
 
 .findings-detail { margin: 1.5rem 0; }
 .findings-detail > summary {
@@ -895,6 +943,7 @@ form.jira-export { margin-top: 1.5rem; }
   /* severity/disposition badges must read in grayscale: both already carry a
      text label, so drop the tinted fill and outline them instead */
   .report-page .band-badge,
+  .report-page .evidence-badge,
   .report-page .decision-status {
     background: transparent !important;
     color: #000000 !important;

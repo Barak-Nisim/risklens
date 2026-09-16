@@ -3,13 +3,18 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from risklens.loader import dump_assessment, load_assessment
+from risklens.loader import dump_assessment, load_assessment, load_framework
+from risklens.scoring import score_assessment
 from risklens.web.app import app
 
 client = TestClient(app)
 
 SAMPLE_YAML = Path("examples/sample_answers.yaml").read_text(encoding="utf-8")
 SAMPLE_ASSESSMENT = load_assessment("examples/sample_answers.yaml")
+# how many rows the default-threshold findings table renders
+SAMPLE_FINDING_COUNT = len(
+    score_assessment(load_framework("nist_csf"), SAMPLE_ASSESSMENT).findings
+)
 
 
 def _sample_form_data(**overrides):
@@ -18,6 +23,7 @@ def _sample_form_data(**overrides):
         data[f"q_{question_id}"] = str(answer.score)
         if answer.notes:
             data[f"notes_{question_id}"] = answer.notes
+        data[f"evidence_{question_id}"] = answer.evidence_type
     data.update(overrides)
     return data
 
@@ -123,6 +129,69 @@ def test_finding_threshold_persists_through_a_decision_record_rescore(monkeypatc
     # the threshold chosen at submission time survives the re-score, rather
     # than silently resetting to the default
     assert "Very strict (below &#34;Optimized&#34;)" in response.text
+
+
+def test_app_form_offers_an_evidence_type_per_question():
+    response = client.get("/app")
+
+    assert response.status_code == 200
+    assert 'name="evidence_gov-04"' in response.text
+    assert "Verbal confirmation" in response.text
+    assert "Policy doc" in response.text
+    assert "Audit log" in response.text
+    # the sample prefills gov-04 as verbal, so that option comes back selected
+    assert '<option value="verbal" selected>' in response.text
+
+
+def test_report_findings_table_shows_an_evidence_badge_per_finding(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert response.status_code == 200
+    # one badge per finding, with the finding's note rendered alongside it
+    assert response.text.count('class="evidence-badge') == SAMPLE_FINDING_COUNT
+    assert "Existing vendors are almost never reassessed after onboarding" in response.text
+    assert 'class="evidence-badge evidence-1">Verbal confirmation<' in response.text
+    assert 'class="evidence-badge evidence-3">Audit log<' in response.text
+    # rc-02 carries a note but no evidence type, so it falls back to the default
+    assert 'class="evidence-badge evidence-0">Unspecified<' in response.text
+
+
+def test_report_findings_table_can_be_sorted_by_evidence_strength(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data())
+
+    assert "Evidence: weakest support first" in response.text
+    assert "Evidence: strongest support first" in response.text
+    # every row carries both sort keys, so switching back to priority is lossless
+    assert response.text.count("data-evidence-strength=") == SAMPLE_FINDING_COUNT
+    assert response.text.count("data-priority-rank=") == SAMPLE_FINDING_COUNT
+
+
+def test_evidence_type_chosen_on_the_form_survives_into_the_report_yaml(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post(
+        "/assess", data=_sample_form_data(**{"evidence_gov-04": "audit_log"})
+    )
+
+    assert response.status_code == 200
+    assert "evidence_type: audit_log" in response.text
+
+
+def test_unknown_evidence_type_posted_to_the_form_falls_back_to_default(monkeypatch, tmp_path):
+    monkeypatch.setenv("RISKLENS_HISTORY_DIR", str(tmp_path / "history"))
+    monkeypatch.setenv("RISKLENS_DECISIONS_DIR", str(tmp_path / "decisions"))
+
+    response = client.post("/assess", data=_sample_form_data(**{"evidence_gov-04": "bogus"}))
+
+    assert response.status_code == 200
+    assert "evidence_type: bogus" not in response.text
 
 
 def test_assess_report_leads_with_executive_dashboard(monkeypatch, tmp_path):

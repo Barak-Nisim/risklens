@@ -64,6 +64,8 @@ Produces a CSV with Summary / Issue Type / Priority / Description / Labels colum
 
 Write an answers file in the same shape as `examples/sample_answers.yaml`: an org name, a date, and a score (0-4) plus optional notes for each question in `risklens/frameworks/nist_csf.yaml`.
 
+A note can also carry an `evidence_type` (`policy_doc`, `audit_log`, `verbal`, or `unspecified`) recording how well-supported the answer is. It is optional and defaults to `unspecified`; the report's findings table shows it as a badge and can be re-sorted by it, so gaps resting on the weakest evidence can be reviewed first.
+
 ## Web UI
 
 ```bash

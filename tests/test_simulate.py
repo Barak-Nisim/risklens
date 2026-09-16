@@ -77,13 +77,18 @@ def test_preserves_existing_notes_on_simulated_answers():
         org_name="Test Org",
         date="2026-01-01",
         framework_id="tiny",
-        answers={"q1": Answer("q1", 0, notes="MFA not enforced"), "q2": Answer("q2", 0)},
+        answers={
+            "q1": Answer("q1", 0, notes="MFA not enforced", evidence_type="verbal"),
+            "q2": Answer("q2", 0),
+        },
     )
 
     sim = simulate_improvement(framework, assessment, ["q1"])
 
     hypothetical_answer = sim.hypothetical.assessment.answers["q1"]
     assert hypothetical_answer.notes == "MFA not enforced"
+    # everything recorded alongside the score carries into the hypothetical
+    assert hypothetical_answer.evidence_type == "verbal"
     assert hypothetical_answer.score == 4
 
 

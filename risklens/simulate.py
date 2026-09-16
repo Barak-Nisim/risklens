@@ -37,8 +37,13 @@ def simulate_improvement(
     new_answers = dict(assessment.answers)
     for question_id in question_ids:
         existing = new_answers.get(question_id)
-        notes = existing.notes if existing else None
-        new_answers[question_id] = Answer(question_id=question_id, score=target_score, notes=notes)
+        # replace() rather than rebuilding the Answer, so everything recorded
+        # alongside the score (notes, evidence type) carries into the
+        # hypothetical instead of being silently dropped
+        if existing is not None:
+            new_answers[question_id] = replace(existing, score=target_score)
+        else:
+            new_answers[question_id] = Answer(question_id=question_id, score=target_score)
     hypothetical_assessment = replace(assessment, answers=new_answers)
 
     hypothetical = score_assessment(

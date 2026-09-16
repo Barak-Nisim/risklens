@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 
 from risklens.models import (
+    DEFAULT_EVIDENCE_TYPE,
     DEFAULT_FINDING_THRESHOLD,
     Answer,
     Assessment,
@@ -15,6 +16,7 @@ from risklens.models import (
     Framework,
     Function,
     Question,
+    normalize_evidence_type,
 )
 
 BUILTIN_FRAMEWORKS = {"nist_csf"}
@@ -79,6 +81,8 @@ def parse_assessment(yaml_text: str) -> Assessment:
                 question_id=question_id,
                 score=int(entry["score"]),
                 notes=entry.get("notes"),
+                # older answer files predate this field
+                evidence_type=normalize_evidence_type(entry.get("evidence_type")),
             )
         else:
             answers[question_id] = Answer(question_id=question_id, score=int(entry))
@@ -97,10 +101,14 @@ def dump_assessment(assessment: Assessment) -> str:
     """Serializes an Assessment back to the same YAML shape parse_assessment reads."""
     answers_raw = {}
     for question_id, answer in assessment.answers.items():
+        # a bare score stays a bare score: the mapping form is only used once
+        # there is something beyond the score worth writing down
+        entry: dict = {"score": answer.score}
         if answer.notes:
-            answers_raw[question_id] = {"score": answer.score, "notes": answer.notes}
-        else:
-            answers_raw[question_id] = answer.score
+            entry["notes"] = answer.notes
+        if answer.evidence_type != DEFAULT_EVIDENCE_TYPE:
+            entry["evidence_type"] = answer.evidence_type
+        answers_raw[question_id] = entry if len(entry) > 1 else answer.score
 
     raw = {
         "org_name": assessment.org_name,

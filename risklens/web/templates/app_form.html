@@ -64,13 +64,24 @@
           <label for="q_{{ question.id }}_{{ level }}" title="{{ legend[level] }}">{{ level }}</label>
           {% endfor %}
         </div>
-        <input
-          type="text"
-          name="notes_{{ question.id }}"
-          class="notes-input"
-          placeholder="Optional note"
-          value="{{ current.notes if current and current.notes else '' }}"
-        >
+        <div class="notes-row">
+          <input
+            type="text"
+            name="notes_{{ question.id }}"
+            class="notes-input"
+            placeholder="Optional note"
+            value="{{ current.notes if current and current.notes else '' }}"
+          >
+          <select
+            name="evidence_{{ question.id }}"
+            class="evidence-select"
+            aria-label="Evidence type for {{ question.text }}"
+          >
+            {% for key, label in evidence_type_options %}
+            <option value="{{ key }}" {{ "selected" if current and current.evidence_type == key }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </fieldset>
       {% endfor %}
       {% endfor %}
