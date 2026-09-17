@@ -5,6 +5,10 @@ This module never recomputes or overrides scores -- it only narrates the
 deterministic output of risklens.scoring. Requires ANTHROPIC_API_KEY to be
 set (see .env.example); not exercised by the test suite or CI, which run
 with mocked responses.
+
+Re-running an identical assessment is served from narrative_cache instead
+of re-spending tokens on a response that would come back identical -- see
+that module for what counts as identical.
 """
 
 from __future__ import annotations
@@ -14,6 +18,7 @@ import json
 import anthropic
 from dotenv import load_dotenv
 
+from risklens.ai.narrative_cache import get_cached_narrative, store_narrative
 from risklens.ai.prompts import SYSTEM_PROMPT, build_user_prompt
 from risklens.models import ScoreResult
 
@@ -59,6 +64,10 @@ OUTPUT_SCHEMA = {
 
 
 def generate_narrative(result: ScoreResult) -> dict:
+    cached = get_cached_narrative(result)
+    if cached is not None:
+        return cached
+
     load_dotenv()
     client = anthropic.Anthropic()
 
@@ -71,4 +80,6 @@ def generate_narrative(result: ScoreResult) -> dict:
     )
 
     text = next(block.text for block in response.content if block.type == "text")
-    return json.loads(text)
+    narrative = json.loads(text)
+    store_narrative(result, narrative)
+    return narrative
