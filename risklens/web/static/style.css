@@ -581,7 +581,7 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
 }
 .unanswered-banner.visible { display: block; }
 
-.pill-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
 .pill-row input[type="radio"] {
   position: absolute;
   width: 1px; height: 1px;
@@ -603,6 +603,12 @@ blockquote.card cite { color: var(--muted); font-size: 0.85rem; font-style: norm
   font-weight: 600;
   font-size: 0.82rem;
   cursor: pointer;
+  /* touch behavior: no double-tap zoom delay, no grey flash, and no text
+     selection when a tap turns into a drag on the digit itself */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .pill-row input[type="radio"]:checked + label {
@@ -816,6 +822,43 @@ form.jira-export { margin-top: 1.5rem; }
   .cards, .cards-3 { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
   .site-nav { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+}
+
+/* Questionnaire touch targets. The 0-4 pills are 32px circles on a desktop
+   pointer, which is fine for a mouse and too small for a thumb, so anywhere
+   the pointer is coarse (a phone or tablet, at any width) they grow past the
+   44px minimum in WCAG 2.5.5 / the platform touch guidelines. Keyed on the
+   pointer rather than only on width so a wide tablet gets them too, with the
+   narrow-viewport spacing handled separately below. */
+
+@media (pointer: coarse) {
+  .pill-row { gap: 0.6rem; margin-bottom: 0.75rem; }
+  .pill-row label {
+    width: 44px;
+    height: 44px;
+    font-size: 0.95rem;
+  }
+  .notes-input,
+  .evidence-select { min-height: 44px; }
+}
+
+@media (max-width: 600px) {
+  /* five 44px pills plus their gaps need ~255px of row; buy the last of it
+     back from the section padding so they stay on one row at 320px instead
+     of wrapping a lone "4" onto a second line */
+  .function-section { padding: 0.9rem 0.8rem; }
+  .pill-row { gap: 0.55rem; }
+
+  /* the note and its evidence dropdown each take the full row rather than
+     splitting a narrow one between them */
+  .notes-row { flex-direction: column; align-items: stretch; }
+  .notes-input { min-width: 0; }
+
+  /* the three org fields are a 2fr/1fr/1fr row on desktop; stacked here so
+     the date input doesn't push the page into a horizontal scroll */
+  .org-fields { grid-template-columns: 1fr; }
+  .controls { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .controls button { width: 100%; min-height: 44px; }
 }
 
 /* ---------- dark mode ---------- */
