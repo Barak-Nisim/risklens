@@ -38,11 +38,14 @@ from risklens.scoring import (
     tier_for_score,
 )
 from risklens.simulate import simulate_improvement
+from risklens.web.limits import RequestGuardMiddleware
 
 WEB_DIR = Path(__file__).parent
 SAMPLE_ANSWERS_PATH = WEB_DIR.parent.parent / "examples" / "sample_answers.yaml"
 
 app = FastAPI(title="RiskLens")
+# body cap + per-client rate limit on the form-submitting routes; see limits.py
+app.add_middleware(RequestGuardMiddleware)
 templates = Jinja2Templates(directory=str(WEB_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(WEB_DIR / "static")), name="static")
 
